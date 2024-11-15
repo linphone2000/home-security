@@ -1,50 +1,40 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import Webcam from "react-webcam";
+import { useToast } from "@/hooks/use-toast";
 
 const WebcamCapture = () => {
-  const videoRef = useRef(null);
+  const webcamRef = useRef(null);
   const [images, setImages] = useState([]);
   const [personName, setPersonName] = useState("");
-  const [mediaStream, setMediaStream] = useState(null);
+  const [capturing, setCapturing] = useState(false);
+  const captureLimit = 250; // Updated to capture 250 images
+  const { toast } = useToast();
 
-  // Start video stream on component mount
-  useEffect(() => {
-    const startVideo = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        setMediaStream(stream);
-      } catch (err) {
-        console.error("Error accessing webcam: ", err);
-      }
-    };
-
-    startVideo();
-
-    // Cleanup video stream when component unmounts
-    return () => {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, [mediaStream]);
-
-  // Capture image from the video stream
-  const capture = () => {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    if (videoRef.current && context) {
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      const imageSrc = canvas.toDataURL("image/jpeg");
-      setImages((prev) => [...prev, imageSrc]);
+  // Function to capture image from Webcam
+  const captureImage = () => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) setImages((prev) => [...prev, imageSrc]);
     }
+  };
+
+  // Start automatic capture of images
+  const startAutoCapture = () => {
+    setImages([]); // Reset images
+    setCapturing(true); // Set capturing state
+
+    let count = 0;
+    const interval = setInterval(() => {
+      if (count < captureLimit) {
+        captureImage();
+        count += 1;
+      } else {
+        clearInterval(interval); // Stop capturing after reaching the limit
+        setCapturing(false);
+      }
+    }, 250); // Capture every 500ms (adjust as needed)
   };
 
   // Submit images to the server
@@ -63,6 +53,10 @@ const WebcamCapture = () => {
       });
       const result = await response.json();
       console.log("Upload result:", result);
+      toast({
+        title: "Photos Saved",
+        description: "Data Training is ready!",
+      });
     } catch (error) {
       console.error("Error uploading images:", error);
     }
@@ -79,22 +73,27 @@ const WebcamCapture = () => {
       />
 
       <div className="border border-gray-300 rounded-lg overflow-hidden mb-4">
-        <video
-          ref={videoRef}
-          autoPlay
+        <Webcam
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
           width={400}
           height={300}
           className="w-full"
-          style={{ objectFit: "cover" }}
+          videoConstraints={{
+            facingMode: "user",
+          }}
         />
       </div>
 
       <div className="flex gap-4">
         <button
-          onClick={capture}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          onClick={startAutoCapture}
+          disabled={capturing}
+          className={`px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 ${
+            capturing ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+          }`}
         >
-          Capture Photo
+          {capturing ? "Capturing..." : "Start Capture"}
         </button>
         <button
           onClick={submitImages}
@@ -103,6 +102,10 @@ const WebcamCapture = () => {
           Upload All Photos
         </button>
       </div>
+
+      <p className="mt-4">
+        Captured {images.length}/{captureLimit} images
+      </p>
 
       <div className="mt-6 grid grid-cols-3 gap-2">
         {images.map((img, index) => (
