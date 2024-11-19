@@ -6,6 +6,7 @@ import Link from "next/link";
 import ModeToggle from "./ui/ModeToggle"; // Ensure the correct path to your ModeToggle component
 
 const Navbar = () => {
+  const pathName = usePathname();
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/facecapture", label: "Save Faces" },
@@ -34,7 +35,7 @@ const Navbar = () => {
                   key={link.href}
                   href={link.href}
                   className={`text-sm font-semibold ${
-                    usePathname() === link.href
+                    pathName === link.href
                       ? "text-white dark:text-gray-100 underline decoration-2 underline-offset-4"
                       : "text-gray-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-100"
                   }`}

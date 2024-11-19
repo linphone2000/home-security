@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { useToast } from "@/hooks/use-toast";
-import * as faceapi from "face-api.js";
+// import * as faceapi from "face-api.js";
+import * as faceapi from "face-api.js/dist/face-api.min.js";
 
 // Dynamically import Webcam to avoid SSR issues
 const Webcam = dynamic(() => import("react-webcam"), { ssr: false });
