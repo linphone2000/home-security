@@ -9,7 +9,7 @@ const Navbar = () => {
   const pathName = usePathname();
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/facecapture", label: "Save Faces" },
+    { href: "/facecapture", label: "Monitor" },
   ];
 
   return (
