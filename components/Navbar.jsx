@@ -3,10 +3,12 @@
 import { usePathname } from "next/navigation";
 import React from "react";
 import Link from "next/link";
-import ModeToggle from "./ui/ModeToggle"; // Ensure the correct path to your ModeToggle component
+import ModeToggle from "./ui/ModeToggle";
+import { useSession, signOut } from "next-auth/react";
 
 const Navbar = () => {
   const pathName = usePathname();
+  const { data: session } = useSession();
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/facecapture", label: "Monitor" },
@@ -14,7 +16,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Navbar */}
       <nav className="bg-gradient-to-r from-sky-600 via-blue-500 to-indigo-600 dark:from-gray-800 dark:via-gray-900 dark:to-black shadow-lg fixed w-full z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="flex justify-between items-center h-16">
@@ -26,6 +27,15 @@ const Navbar = () => {
               >
                 Home Security
               </Link>
+              {session?.user ? (
+                <p className="text-sm text-gray-100 mt-1">
+                  You are logged in as {session.user.email}.
+                </p>
+              ) : (
+                <p className="text-sm text-gray-200 mt-1">
+                  Please sign in or sign up.
+                </p>
+              )}
             </div>
 
             {/* Desktop Menu */}
@@ -44,7 +54,23 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              {/* Theme Toggle */}
+              {/* Conditionally render auth links/buttons */}
+              {session?.user ? (
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="text-sm text-gray-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-100 font-semibold"
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="text-sm text-gray-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-100 font-semibold"
+                >
+                  Sign In
+                </Link>
+              )}
+
               <ModeToggle />
             </div>
           </div>
