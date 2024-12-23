@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import * as faceapi from "face-api.js/dist/face-api.min.js";
 import { Rings } from "react-loader-spinner";
+import { drawFaceDetections } from "@/lib/drawFace";
 
 const Webcam = dynamic(() => import("react-webcam"), { ssr: false });
 
@@ -68,7 +69,7 @@ const WebcamCapture = () => {
         }
         faceMatcherRef.current = new faceapi.FaceMatcher(
           labeledFaceDescriptors,
-          0.4 // Similarity threshold
+          0.5 // Similarity threshold
         );
         console.log("Face Matcher initialized");
 
@@ -126,19 +127,13 @@ const WebcamCapture = () => {
           const context = canvas.getContext("2d");
           context.clearRect(0, 0, videoWidth, videoHeight);
 
-          // Perform face matching and draw results
+          // Use utility function to draw detections
           if (faceMatcherRef.current && resizedDetections.length > 0) {
-            const results = resizedDetections.map((d) =>
-              faceMatcherRef.current.findBestMatch(d.descriptor)
+            drawFaceDetections(
+              resizedDetections,
+              context,
+              faceMatcherRef.current
             );
-
-            results.forEach((result, i) => {
-              const box = resizedDetections[i].detection.box;
-              const drawBox = new faceapi.draw.DrawBox(box, {
-                label: result.toString(),
-              });
-              drawBox.draw(canvas);
-            });
           }
 
           // Continue the loop for the next frame
