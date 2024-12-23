@@ -12,6 +12,7 @@ const Navbar = () => {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/facecapture", label: "Monitor" },
+    { href: "/objectdetection", label: "Object Detection"}
   ];
 
   return (

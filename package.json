@@ -8,13 +8,15 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "engines": {
-    "node": "22.x"
-  },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
     "@radix-ui/react-toggle": "^1.1.0",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow-models/mobilenet": "^2.1.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-backend-cpu": "^4.21.0",
+    "@tensorflow/tfjs-backend-webgl": "^4.21.0",
     "bcrypt": "^5.1.1",
     "canvas": "^2.11.2",
     "class-variance-authority": "^0.7.0",

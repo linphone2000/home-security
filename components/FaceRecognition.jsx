@@ -9,13 +9,14 @@ import { drawFaceDetections } from "@/lib/drawFace";
 
 const Webcam = dynamic(() => import("react-webcam"), { ssr: false });
 
-const WebcamCapture = () => {
+const FaceRecognition = () => {
   // Models
   const MODEL_URL = "/models";
 
   // Refs for face recognition
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+  const detectionLoopRef = useRef(null);
 
   // Face Matcher reference
   const faceMatcherRef = useRef(null);
@@ -85,6 +86,17 @@ const WebcamCapture = () => {
       }
     };
     loadModelsAndData();
+
+    // Cleanup on unmount
+    return () => {
+      if (detectionLoopRef.current) {
+        cancelAnimationFrame(detectionLoopRef.current);
+      }
+      faceapi.nets.tinyFaceDetector.dispose();
+      faceapi.nets.faceLandmark68Net.dispose();
+      faceapi.nets.faceRecognitionNet.dispose();
+      console.log("Face API resources disposed");
+    };
   }, []);
 
   // Function to start face detection and recognition
@@ -141,14 +153,10 @@ const WebcamCapture = () => {
           }
 
           // Continue the loop for the next frame
-          requestAnimationFrame(faceDetectionLoop);
-        } else {
-          // Retry if the video is not ready
-          setTimeout(startDetection, 100);
+          detectionLoopRef.current = requestAnimationFrame(faceDetectionLoop);
         }
       };
-
-      faceDetectionLoop();
+      detectionLoopRef.current = requestAnimationFrame(faceDetectionLoop);
     } else {
       // Retry if the video is not ready
       setTimeout(startDetection, 100);
@@ -156,24 +164,29 @@ const WebcamCapture = () => {
   };
 
   return (
-    <div className="flex flex-col my-4 items-center bg-gray-100 dark:bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
-      {/* Webcam Preview with Canvas Overlay */}
-      <div className="relative border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden mb-4">
-        <Webcam
-          ref={webcamRef}
-          audio={false}
-          screenshotFormat="image/jpeg"
-          className="w-full"
-          videoConstraints={{
-            facingMode: "user",
-          }}
-        />
-        {/* Canvas for drawing face detections */}
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 w-full h-full"
-        />
+    <div className="my-4 items-center bg-gray-100 dark:bg-gray-900 p-6 rounded-lg shadow-lg mx-auto">
+      <div className="flex space-x-4 mb-4">
+        {/* Face Recognition */}
+        <div className="relative border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden flex-1">
+          <Webcam
+            ref={webcamRef}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            className="w-full"
+            videoConstraints={{
+              facingMode: "user",
+            }}
+          />
+          {/* Canvas for drawing face detections */}
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
+          />
+        </div>
+
+        {/* <ObjectDetection /> */}
       </div>
+
       {/* Loading Indicator */}
       {loading && (
         <div className="flex items-center justify-center">
@@ -185,4 +198,4 @@ const WebcamCapture = () => {
   );
 };
 
-export default WebcamCapture;
+export default FaceRecognition;
