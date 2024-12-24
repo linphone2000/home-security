@@ -8,7 +8,6 @@ import * as faceapi from "face-api.js/dist/face-api.min.js";
 import { drawFaceDetections } from "@/lib/drawFace";
 // Utils
 import { drawOnCanvas } from "@/lib/drawObjects";
-import ErrorBoundary from "./ErrorBoundary";
 
 // Detector for objects
 let detector = null;
@@ -247,54 +246,52 @@ const WebcamCapture = () => {
   };
 
   return (
-    <ErrorBoundary>
-      <div className="flex flex-col my-4 items-center bg-gray-100 dark:bg-gray-900 p-6 rounded-lg shadow-lg mx-auto">
-        {/* Container for Webcam Previews */}
-        <div className="flex space-x-4 mb-4 w-full">
-          {/* First Webcam Preview with Canvas Overlay */}
-          <div className="relative flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
-            <Webcam
-              ref={webcamRef}
-              audio={false}
-              screenshotFormat="image/jpeg"
-              className="w-full"
-              videoConstraints={{
-                facingMode: "user",
-              }}
-            />
-            <canvas
-              ref={canvasRef}
-              className="absolute top-0 left-0 w-full h-full"
-            />
-          </div>
-
-          {/* Second Webcam Preview with Canvas Overlay */}
-          <div className="relative flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
-            <Webcam
-              ref={webcamRefObj}
-              audio={false}
-              screenshotFormat="image/jpeg"
-              className="w-full"
-              videoConstraints={{
-                facingMode: "user",
-              }}
-            />
-            <canvas
-              ref={canvasRefObj}
-              className="absolute top-0 left-0 w-full h-full"
-            />
-          </div>
+    <div className="flex flex-col my-4 items-center bg-gray-100 dark:bg-gray-900 p-6 rounded-lg shadow-lg mx-auto">
+      {/* Container for Webcam Previews */}
+      <div className="flex space-x-4 mb-4 w-full">
+        {/* First Webcam Preview with Canvas Overlay */}
+        <div className="relative flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+          <Webcam
+            ref={webcamRef}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            className="w-full"
+            videoConstraints={{
+              facingMode: "user",
+            }}
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
+          />
         </div>
 
-        {/* Loading Indicator */}
-        {loading && (
-          <div className="flex items-center justify-center">
-            <Rings height="80" width="80" color="#4fa94d" ariaLabel="loading" />
-            <span className="ml-4 text-white">Loading Models...</span>
-          </div>
-        )}
+        {/* Second Webcam Preview with Canvas Overlay */}
+        <div className="relative flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+          <Webcam
+            ref={webcamRefObj}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            className="w-full"
+            videoConstraints={{
+              facingMode: "user",
+            }}
+          />
+          <canvas
+            ref={canvasRefObj}
+            className="absolute top-0 left-0 w-full h-full"
+          />
+        </div>
       </div>
-    </ErrorBoundary>
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="flex items-center justify-center">
+          <Rings height="80" width="80" color="#4fa94d" ariaLabel="loading" />
+          <span className="ml-4 text-white">Loading Models...</span>
+        </div>
+      )}
+    </div>
   );
 };
 
