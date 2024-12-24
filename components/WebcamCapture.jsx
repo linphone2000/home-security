@@ -6,6 +6,12 @@ import { Rings } from "react-loader-spinner";
 // FaceAPI
 import * as faceapi from "face-api.js/dist/face-api.min.js";
 import { drawFaceDetections } from "@/lib/drawFace";
+// Utils
+import { drawOnCanvas } from "@/lib/drawObjects";
+import ErrorBoundary from "./ErrorBoundary";
+
+// Detector for objects
+let detector = null;
 
 const Webcam = dynamic(() => import("react-webcam"), { ssr: false });
 
@@ -16,12 +22,97 @@ const WebcamCapture = () => {
   // Refs for face recognition
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+  const webcamRefObj = useRef(null);
+  const canvasRefObj = useRef(null);
 
   // Face Matcher reference
   const faceMatcherRef = useRef(null);
 
   // State to manage loading status
   const [loading, setLoading] = useState(true);
+  const [objectDetectionModel, setObjectDetectionModel] = useState(null);
+  const [scriptsLoaded, setScriptsLoaded] = useState(false);
+  let interval = null;
+
+  // Dynamically load CDN scripts and ensure they are loaded
+  useEffect(() => {
+    const loadScripts = () => {
+      const script1 = document.createElement("script");
+      script1.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js";
+      script1.async = true;
+      script1.onload = () => checkScriptsLoaded();
+      document.body.appendChild(script1);
+
+      const script2 = document.createElement("script");
+      script2.src = "https://unpkg.com/ml5@0.7.1/dist/ml5.min.js";
+      script2.async = true;
+      script2.onload = () => checkScriptsLoaded();
+      document.body.appendChild(script2);
+    };
+
+    const checkScriptsLoaded = () => {
+      // Check if all scripts are loaded
+      if (typeof ml5 !== "undefined" && typeof p5 !== "undefined") {
+        setScriptsLoaded(true);
+      }
+    };
+
+    loadScripts();
+
+    // Cleanup: remove scripts when the component is unmounted
+    return () => {
+      document.body
+        .querySelectorAll("script")
+        .forEach((script) => script.remove());
+    };
+  }, []); // Empty dependency array ensures this only runs once
+
+  // Initialize object detection model after scripts are loaded
+  useEffect(() => {
+    if (scriptsLoaded) {
+      setLoading(true);
+      detector = ml5.objectDetector("cocossd");
+      setObjectDetectionModel(detector);
+      setLoading(false);
+    }
+  }, [scriptsLoaded]);
+
+  // Resize canvas to match webcam video dimensions
+  const resizeCanvas = (canvasRefObj, webcamRefObj) => {
+    const canvas = canvasRefObj.current;
+    const video = webcamRefObj.current?.video;
+
+    if (canvas && video) {
+      const { videoWidth, videoHeight } = video;
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
+    }
+  };
+
+  // Run predictions periodically and log them
+  const runPredictions = async () => {
+    if (
+      objectDetectionModel &&
+      webcamRefObj.current &&
+      webcamRefObj.current.video &&
+      webcamRefObj.current.video.readyState === 4
+    ) {
+      const predictions = await objectDetectionModel.detect(
+        webcamRefObj.current.video
+      );
+      resizeCanvas(canvasRefObj, webcamRefObj);
+      drawOnCanvas(predictions, canvasRefObj.current.getContext("2d"));
+    }
+  };
+
+  // Start detection loop after model is loaded
+  useEffect(() => {
+    if (objectDetectionModel) {
+      interval = setInterval(runPredictions, 100);
+    }
+    return () => clearInterval(interval);
+  }, [objectDetectionModel]);
 
   // Load labeled images and create face matcher
   const loadLabeledImages = async () => {
@@ -156,32 +247,54 @@ const WebcamCapture = () => {
   };
 
   return (
-    <div className="flex flex-col my-4 items-center bg-gray-100 dark:bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
-      {/* Webcam Preview with Canvas Overlay */}
-      <div className="relative border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden mb-4">
-        <Webcam
-          ref={webcamRef}
-          audio={false}
-          screenshotFormat="image/jpeg"
-          className="w-full"
-          videoConstraints={{
-            facingMode: "user",
-          }}
-        />
-        {/* Canvas for drawing face detections */}
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 w-full h-full"
-        />
-      </div>
-      {/* Loading Indicator */}
-      {loading && (
-        <div className="flex items-center justify-center">
-          <Rings height="80" width="80" color="#4fa94d" ariaLabel="loading" />
-          <span className="ml-4 text-white">Loading Models...</span>
+    <ErrorBoundary>
+      <div className="flex flex-col my-4 items-center bg-gray-100 dark:bg-gray-900 p-6 rounded-lg shadow-lg mx-auto">
+        {/* Container for Webcam Previews */}
+        <div className="flex space-x-4 mb-4 w-full">
+          {/* First Webcam Preview with Canvas Overlay */}
+          <div className="relative flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+            <Webcam
+              ref={webcamRef}
+              audio={false}
+              screenshotFormat="image/jpeg"
+              className="w-full"
+              videoConstraints={{
+                facingMode: "user",
+              }}
+            />
+            <canvas
+              ref={canvasRef}
+              className="absolute top-0 left-0 w-full h-full"
+            />
+          </div>
+
+          {/* Second Webcam Preview with Canvas Overlay */}
+          <div className="relative flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+            <Webcam
+              ref={webcamRefObj}
+              audio={false}
+              screenshotFormat="image/jpeg"
+              className="w-full"
+              videoConstraints={{
+                facingMode: "user",
+              }}
+            />
+            <canvas
+              ref={canvasRefObj}
+              className="absolute top-0 left-0 w-full h-full"
+            />
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="flex items-center justify-center">
+            <Rings height="80" width="80" color="#4fa94d" ariaLabel="loading" />
+            <span className="ml-4 text-white">Loading Models...</span>
+          </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 };
 
