@@ -89,7 +89,7 @@ const WebcamCapture = () => {
     }
   };
 
-  // Run predictions periodically and log them
+  // Run object predictions periodically and log them
   const runPredictions = async () => {
     if (
       objectDetectionModel &&
@@ -105,7 +105,7 @@ const WebcamCapture = () => {
     }
   };
 
-  // Start detection loop after model is loaded
+  // Start object detection loop after model is loaded
   useEffect(() => {
     if (objectDetectionModel) {
       interval = setInterval(runPredictions, 100);
