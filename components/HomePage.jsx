@@ -3,6 +3,7 @@ import React from "react";
 import { Terminal, Camera, ShieldCheck, UserCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const HomePage = () => {
   const fadeInUp = {
@@ -28,10 +29,10 @@ const HomePage = () => {
           className="text-4xl md:text-5xl font-extrabold text-white dark:text-gray-200"
           variants={fadeInUp}
         >
-          Smart AI-Powered Home Security
+          Intelligent Home Surveillance System
         </motion.h2>
         <motion.p
-          className="mt-4 text-lg md:text-xl text-gray-200 dark:text-gray-400 max-w-2xl"
+          className="mt-4 text-lg md:text-xl text-gray-50 dark:text-gray-200 max-w-2xl tracking-wide leading-7"
           variants={fadeInUp}
         >
           Real-time face recognition and object detection powered by
@@ -39,17 +40,19 @@ const HomePage = () => {
           your browser.
         </motion.p>
         <motion.p
-          className="mt-2 text-md text-gray-200 dark:text-gray-400 max-w-xl"
+          className="mt-3 text-base md:text-lg text-gray-300 dark:text-gray-400 max-w-2xl tracking-wide leading-6"
           variants={fadeInUp}
         >
           Dynamic switching between object detection and face recognition
           ensures efficient performance without external hardware.
         </motion.p>
         <motion.div className="mt-6 flex space-x-4" variants={fadeInUp}>
-          <Button href="#features">Learn More</Button>
-          <Button variant="outline" href="#contact">
-            Get Started
-          </Button>
+          <Link href="/facecapture">
+            <Button>Learn More</Button>
+          </Link>
+          <Link href="/facecapture">
+            <Button variant="outline">Get Started</Button>
+          </Link>
         </motion.div>
       </motion.section>
 
@@ -197,12 +200,11 @@ const HomePage = () => {
             Protect your home with real-time face recognition and object
             detection. Stay informed and secure, all within your browser.
           </p>
-          <Button
-            href="#contact"
-            className="bg-white text-blue-600 dark:bg-gray-700 dark:text-white"
-          >
-            Get Started Now
-          </Button>
+          <Link href={"https://lpmz-portfolio.vercel.app/"}>
+            <Button className="bg-white text-blue-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-white">
+              Get Started Now
+            </Button>
+          </Link>
         </div>
       </motion.section>
 
