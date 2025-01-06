@@ -28,15 +28,22 @@ const HomePage = () => {
           className="text-4xl md:text-5xl font-extrabold text-white dark:text-gray-200"
           variants={fadeInUp}
         >
-          Advanced Face Recognition System
+          Smart AI-Powered Home Security
         </motion.h2>
         <motion.p
           className="mt-4 text-lg md:text-xl text-gray-200 dark:text-gray-400 max-w-2xl"
           variants={fadeInUp}
         >
-          Utilize state-of-the-art TensorFlow models for accurate and real-time
-          face recognition. Enhance your security and streamline user
-          interactions effortlessly.
+          Real-time face recognition and object detection powered by
+          TensorFlow.js and Next.js for enhanced privacy and security—right in
+          your browser.
+        </motion.p>
+        <motion.p
+          className="mt-2 text-md text-gray-200 dark:text-gray-400 max-w-xl"
+          variants={fadeInUp}
+        >
+          Dynamic switching between object detection and face recognition
+          ensures efficient performance without external hardware.
         </motion.p>
         <motion.div className="mt-6 flex space-x-4" variants={fadeInUp}>
           <Button href="#features">Learn More</Button>
@@ -55,7 +62,7 @@ const HomePage = () => {
             animate="visible"
             variants={fadeInUp}
           >
-            Features
+            Key Features
           </motion.h3>
           <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
@@ -70,30 +77,30 @@ const HomePage = () => {
                 Real-Time Detection
               </h4>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Instantly recognize faces with our optimized TensorFlow models,
-                ensuring quick and reliable performance.
+                Detect and identify faces instantly with fast, browser-based AI
+                processing.
               </p>
             </motion.div>
             {/* Feature 2 */}
             <motion.div className="text-center" variants={fadeInUp}>
               <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-blue-500 dark:text-cyan-400" />
               <h4 className="text-xl font-semibold dark:text-white">
-                High Accuracy
+                Enhanced Accuracy
               </h4>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Achieve unparalleled accuracy in face recognition, reducing
-                false positives and enhancing security measures.
+                Reliable recognition with advanced models, minimizing false
+                positives for secure performance.
               </p>
             </motion.div>
             {/* Feature 3 */}
             <motion.div className="text-center" variants={fadeInUp}>
               <UserCheck className="mx-auto mb-4 h-12 w-12 text-blue-500 dark:text-cyan-400" />
               <h4 className="text-xl font-semibold dark:text-white">
-                User-Friendly Interface
+                Seamless Usability
               </h4>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Easily manage and monitor recognized faces through our intuitive
-                dashboard, designed for seamless user experience.
+                Manage and monitor with ease using a clean and intuitive
+                dashboard.
               </p>
             </motion.div>
           </motion.div>
@@ -124,15 +131,15 @@ const HomePage = () => {
             >
               <img
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&cs=tinysrgb&fit=crop&w=500&h=300&q=80"
-                alt="Upload Image"
+                alt="Webcam Input"
                 className="rounded-lg shadow-md mb-4"
               />
               <h4 className="text-xl font-semibold dark:text-white">
-                1. Upload Image
+                1. Capture Input
               </h4>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Start by uploading an image or accessing your webcam for live
-                face detection.
+                Use your webcam to provide a live video feed for face and object
+                detection.
               </p>
             </motion.div>
             {/* Step 2 */}
@@ -142,15 +149,15 @@ const HomePage = () => {
             >
               <img
                 src="https://d3caycb064h6u1.cloudfront.net/wp-content/uploads/2022/10/dataprocessing-scaled.jpg"
-                alt="Processing"
+                alt="Data Processing"
                 className="rounded-lg shadow-md mb-4"
               />
               <h4 className="text-xl font-semibold dark:text-white">
-                2. Process Data
+                2. Analyze Input
               </h4>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Our TensorFlow models analyze and recognize faces with high
-                precision and speed.
+                Real-time analysis using TensorFlow.js to detect objects and
+                recognize faces efficiently.
               </p>
             </motion.div>
             {/* Step 3 */}
@@ -160,15 +167,15 @@ const HomePage = () => {
             >
               <img
                 src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?crop=entropy&cs=tinysrgb&fit=crop&w=500&h=300&q=80"
-                alt="Results"
+                alt="Results Display"
                 className="rounded-lg shadow-md mb-4"
               />
               <h4 className="text-xl font-semibold dark:text-white">
-                3. View Results
+                3. Get Results
               </h4>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Access detailed reports and real-time notifications based on the
-                recognition results.
+                View real-time notifications and detailed outputs on detected
+                faces and objects.
               </p>
             </motion.div>
           </motion.div>
@@ -187,8 +194,8 @@ const HomePage = () => {
             Ready to Enhance Your Security?
           </h3>
           <p className="mb-6">
-            Integrate our advanced face recognition system into your application
-            and experience unmatched security and efficiency.
+            Protect your home with real-time face recognition and object
+            detection. Stay informed and secure, all within your browser.
           </p>
           <Button
             href="#contact"
@@ -205,7 +212,7 @@ const HomePage = () => {
         className="bg-gray-800 text-white py-6 dark:bg-black"
       >
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 FaceRec TensorFlow. All rights reserved.</p>
+          <p>&copy; 2024 Lin Phone Myint Zaw. All rights reserved.</p>
           <div className="mt-4 flex justify-center space-x-4">
             <a href="/privacy" className="hover:underline">
               Privacy Policy
