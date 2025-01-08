@@ -106,7 +106,7 @@ export default function ObjectDetection({ onPersonDetected }) {
   }, [objectDetectionModel]);
 
   if (loading) {
-    return <p className="text-white">Loading Object Detection...</p>;
+    return <p className="text-black">Loading Object Detection...</p>;
   }
 
   return (

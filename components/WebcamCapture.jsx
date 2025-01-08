@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import ObjectDetection from "./ObjectDetection";
 import FaceRecognition from "./FaceRecognition";
 
@@ -27,26 +27,23 @@ export default function WebcamCapture() {
         setSwitching(true);
         setMode("face");
         resetCounts();
+        return;
       }
     }
-    setSwitching(false);
   };
 
   // Handle switching back to object detection
   const handleNoFaceDetected = () => {
-    console.log(mode);
-    console.log(switching);
     if (mode === "face" && !switching) {
       noPersonCountRef.current += 1;
       personCountRef.current = 0;
       if (noPersonCountRef.current >= NO_PERSON_THRESHOLD) {
-        console.log("Switching back to object detection");
         setSwitching(true);
         setMode("object");
         resetCounts();
+        return;
       }
     }
-    setSwitching(false);
   };
 
   // Reset the switching state after a brief cooldown
@@ -59,6 +56,28 @@ export default function WebcamCapture() {
     }
   }, [switching]);
 
+  // Remove semicolons from the page
+  useEffect(() => {
+    const removeSemicolonTextNodes = () => {
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: (node) =>
+            node.nodeValue.trim() === ";"
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_REJECT,
+        }
+      );
+
+      let node;
+      while ((node = walker.nextNode())) {
+        node.nodeValue = ""; // Hide the semicolon
+      }
+    };
+    removeSemicolonTextNodes();
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-gray-100 dark:bg-gray-900">
       <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
@@ -68,7 +87,6 @@ export default function WebcamCapture() {
           ? "Face Recognition"
           : "Loading..."}
       </h1>
-
       <div className="flex justify-center items-center w-full max-w-screen-lg">
         {mode === "object" && (
           <ObjectDetection onPersonDetected={handlePersonDetected} />
