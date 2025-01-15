@@ -32,6 +32,7 @@ export const authOptions = {
       },
     }),
   ],
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -46,9 +47,11 @@ export const authOptions = {
       return session;
     },
   },
+
   pages: {
     signIn: "/signin",
   },
+  
   secret: process.env.NEXTAUTH_SECRET,
 };
 

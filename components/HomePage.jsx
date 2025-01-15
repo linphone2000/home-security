@@ -22,7 +22,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden">
       {/* Hero Global Subtle Animated Blobs */}
       <motion.div
         className="absolute top-0 left-0 w-72 h-72 bg-blue-400 dark:bg-blue-600 
@@ -69,6 +69,18 @@ const HomePage = () => {
           y: [0, -30, 0, 30, 0],
           rotate: [0, -45, -90, -45, 0],
           scale: [1, 1.03, 1, 1.03, 1],
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Contact Global Subtle Animated Blobs */}
+      <motion.div
+        className="absolute bottom-10 right-1/4 w-72 h-72 bg-blue-400 dark:bg-blue-600 
+             rounded-full opacity-10 blur-xl z-0"
+        animate={{
+          x: [-30, 30, -30], // Subtle horizontal movement
+          rotate: [0, -45, -90, -45, 0], // Rotation animation
+          scale: [1, 1.03, 1, 1.03, 1], // Scaling animation
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
