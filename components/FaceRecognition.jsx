@@ -4,19 +4,36 @@ import * as faceapi from "face-api.js/dist/face-api.min.js";
 import Webcam from "react-webcam";
 import { drawFaceDetections } from "@/lib/drawFace";
 import DetectionWrapper from "./DetectionWrapper";
+import Link from "next/link";
 
 export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const faceMatcherRef = useRef(null);
+
   const [loading, setLoading] = useState(true);
+  const [labels, setLabels] = useState([]);
 
   const noFaceCountRef = useRef(0);
-  const NO_FACE_THRESHOLD = 100;
+  const NO_FACE_THRESHOLD = 200;
+
+  // Fetch labels
+  useEffect(() => {
+    const fetchLabels = async () => {
+      try {
+        const response = await fetch("/api/labels");
+        const data = await response.json();
+        setLabels(data);
+      } catch (error) {
+        console.error("Error fetching labels:", error);
+      }
+    };
+
+    fetchLabels();
+  }, []);
 
   // Load labeled images for face recognition
   const loadLabeledImages = async () => {
-    const labels = ["ACM", "AKP", "EEHS", "LP"];
     const labeledFaceDescriptors = await Promise.all(
       labels.map(async (label) => {
         try {
@@ -27,22 +44,17 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
             .withFaceLandmarks()
             .withFaceDescriptor();
 
-          if (detection && detection.descriptor) {
-            return new faceapi.LabeledFaceDescriptors(label, [
-              detection.descriptor,
-            ]);
-          } else {
-            console.warn(`No face detected for ${label}`);
-            return null;
-          }
+          return detection?.descriptor
+            ? new faceapi.LabeledFaceDescriptors(label, [detection.descriptor])
+            : null;
         } catch (error) {
-          console.error(`Error loading image for ${label}:`, error);
+          console.error(`Error loading ${label}:`, error);
           return null;
         }
       })
     );
 
-    return labeledFaceDescriptors.filter((descriptor) => descriptor !== null);
+    return labeledFaceDescriptors.filter(Boolean);
   };
 
   // Initialize Face API models
@@ -55,27 +67,28 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
 
         const labeledFaceDescriptors = await loadLabeledImages();
         if (labeledFaceDescriptors.length === 0) {
-          console.warn("No labeled face descriptors found.");
+          console.warn("No labeled images found");
           setLoading(false);
           return;
         }
+
         faceMatcherRef.current = new faceapi.FaceMatcher(
           labeledFaceDescriptors,
           0.45
         );
 
-        console.log("Face Matcher initialized");
         setLoading(false);
-
         startDetection();
       } catch (error) {
-        console.error("Error loading face-api models:", error);
+        console.error("Error initializing:", error);
         setLoading(false);
       }
     };
 
-    loadModelsAndData();
-  }, [MODEL_URL]);
+    if (labels.length > 0) {
+      loadModelsAndData();
+    }
+  }, [MODEL_URL, labels]);
 
   // Start face detection
   const startDetection = () => {

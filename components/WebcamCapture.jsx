@@ -34,7 +34,7 @@ export default function WebcamCapture() {
 
   // Handle switching back to object detection
   const handleNoFaceDetected = () => {
-    if (mode === "face" && !switching) {
+    if (mode === "face" && switching) {
       noPersonCountRef.current += 1;
       personCountRef.current = 0;
       if (noPersonCountRef.current >= NO_PERSON_THRESHOLD) {
