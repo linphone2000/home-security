@@ -18,12 +18,12 @@ export default function ObjectDetection({ onPersonDetected }) {
   // Dynamically load p5.js + ml5.js
   useEffect(() => {
     const loadScripts = () => {
-      const script1 = document.createElement("script");
-      script1.src =
-        "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js";
-      script1.async = true;
-      script1.onload = () => checkScriptsLoaded();
-      document.body.appendChild(script1);
+      // const script1 = document.createElement("script");
+      // script1.src =
+      //   "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js";
+      // script1.async = true;
+      // script1.onload = () => checkScriptsLoaded();
+      // document.body.appendChild(script1);
 
       const script2 = document.createElement("script");
       script2.src = "https://unpkg.com/ml5@0.7.1/dist/ml5.min.js";
@@ -33,7 +33,7 @@ export default function ObjectDetection({ onPersonDetected }) {
     };
 
     const checkScriptsLoaded = () => {
-      if (typeof ml5 !== "undefined" && typeof p5 !== "undefined") {
+      if (typeof ml5 !== "undefined") {
         setScriptsLoaded(true);
       }
     };
