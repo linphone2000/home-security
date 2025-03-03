@@ -23,7 +23,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
       try {
         const response = await fetch("/api/labels");
         const data = await response.json();
-        setLabels(data);
+        setLabels(data.map((item) => item.label));
       } catch (error) {
         console.error("Error fetching labels:", error);
       }
@@ -31,6 +31,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
 
     fetchLabels();
   }, []);
+  console.log(labels);
 
   // Load labeled images for face recognition
   const loadLabeledImages = async () => {

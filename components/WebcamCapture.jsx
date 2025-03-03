@@ -20,33 +20,33 @@ export default function WebcamCapture() {
 
   // Handle switching to face recognition
   const handlePersonDetected = () => {
-    if (mode === "object" && !switching) {
+    if (mode === "object") {
       personCountRef.current += 1;
       noPersonCountRef.current = 0;
+
       if (personCountRef.current >= PERSON_THRESHOLD) {
-        setSwitching(true);
         setMode("face");
         resetCounts();
-        return;
+        setSwitching(true);
       }
     }
   };
 
   // Handle switching back to object detection
   const handleNoFaceDetected = () => {
-    if (mode === "face" && switching) {
+    if (mode === "face") {
       noPersonCountRef.current += 1;
       personCountRef.current = 0;
+
       if (noPersonCountRef.current >= NO_PERSON_THRESHOLD) {
-        setSwitching(true);
         setMode("object");
         resetCounts();
-        return;
+        setSwitching(true);
       }
     }
   };
 
-  // Reset the switching state after a brief cooldown
+  // Cooldown to prevent immediate switching back and forth
   useEffect(() => {
     if (switching) {
       const cooldown = setTimeout(() => {
@@ -81,11 +81,7 @@ export default function WebcamCapture() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-gray-100 dark:bg-gray-900">
       <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-        {mode === "object"
-          ? "Object Detection"
-          : mode === "face"
-          ? "Face Recognition"
-          : "Loading..."}
+        {mode === "object" ? "Object Detection" : "Face Recognition"}
       </h1>
       <div className="flex justify-center items-center w-full max-w-screen-lg">
         {mode === "object" && (
