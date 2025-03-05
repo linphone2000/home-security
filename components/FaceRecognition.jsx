@@ -4,7 +4,7 @@ import * as faceapi from "face-api.js/dist/face-api.min.js";
 import Webcam from "react-webcam";
 import { drawFaceDetections } from "@/lib/drawFace";
 import DetectionWrapper from "./DetectionWrapper";
-import Link from "next/link";
+import emailjs from "@emailjs/browser";
 
 export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
   const webcamRef = useRef(null);
@@ -13,9 +13,13 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
 
   const [loading, setLoading] = useState(true);
   const [labels, setLabels] = useState([]);
-
   const noFaceCountRef = useRef(0);
+  const strangerCountRef = useRef(0);
+  const emailCooldownRef = useRef(false);
+
   const NO_FACE_THRESHOLD = 200;
+  const STRANGER_THRESHOLD = 150; // 5 seconds at 30 FPS
+  const EMAIL_COOLDOWN = 300; // 10 seconds cooldown at 30 FPS
 
   // Fetch labels
   useEffect(() => {
@@ -91,6 +95,34 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
     }
   }, [MODEL_URL, labels]);
 
+  // Send email function (adapted from ContactMe)
+  const sendEmail = () => {
+    const emailData = {
+      name: "System Alert",
+      email: "linphonem@gmail.com",
+      subject: "Stranger Detected",
+      message: "A stranger has been detected for more than 5 seconds.",
+    };
+
+    emailjs
+      .send(
+        "service_q74zcaq",
+        "template_gntrvbi",
+        emailData,
+        "kQjJEVl8JnnnVr94r"
+      )
+      .then(
+        () => console.log("Email sent: Stranger detected"),
+        (error) => console.error("EmailJS error:", error)
+      );
+
+    // Start cooldown
+    emailCooldownRef.current = true;
+    setTimeout(() => {
+      emailCooldownRef.current = false;
+    }, (EMAIL_COOLDOWN * 1000) / 30); // Convert frames to milliseconds (~30 FPS)
+  };
+
   // Start face detection
   const startDetection = () => {
     const video = webcamRef.current?.video;
@@ -128,8 +160,30 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
 
           if (faceMatcherRef.current && resizedDetections.length > 0) {
             noFaceCountRef.current = 0;
+
+            // Check for unknown faces
+            let hasStranger = false;
+            resizedDetections.forEach((detection) => {
+              const bestMatch = faceMatcherRef.current.findBestMatch(
+                detection.descriptor
+              );
+              if (bestMatch.label === "unknown") {
+                hasStranger = true;
+              }
+            });
+            if (hasStranger) {
+              strangerCountRef.current++;
+              if (strangerCountRef.current >= STRANGER_THRESHOLD) {
+                sendEmail();
+                strangerCountRef.current = 0; // Reset after sending
+              }
+            } else {
+              strangerCountRef.current = 0; // Reset if no stranger
+            }
+
             drawFaceDetections(resizedDetections, ctx, faceMatcherRef.current);
           } else {
+            strangerCountRef.current = 0; // Reset if no face matcher
             noFaceCountRef.current++;
             if (
               onNoFaceDetected &&

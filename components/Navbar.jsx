@@ -1,19 +1,37 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ModeToggle from "./ui/ModeToggle";
 import { useSession, signOut } from "next-auth/react";
 
 const Navbar = () => {
   const pathName = usePathname();
   const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/facecapture", label: "Monitor" },
+    { href: "/newimage", label: "New Image" }, // Longest label
+    { href: "/test", label: "Test" },
   ];
+
+  // Animation variants for dropdown
+  const dropdownVariants = {
+    hidden: {
+      opacity: 0,
+      y: -10,
+      transition: { duration: 0.3, ease: "easeIn" },
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
+  };
 
   return (
     <>
@@ -59,61 +77,105 @@ const Navbar = () => {
               )}
             </motion.div>
 
-            {/* Desktop Menu */}
-            <motion.div
-              className="flex items-center space-x-4"
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            >
-              {navLinks.map((link) => (
-                <motion.div
-                  key={link.href}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="text-sm font-medium"
+            {/* Hamburger Menu Button */}
+            <div className="flex items-center">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-gray-700 dark:text-gray-300 hover:text-cyan-700 dark:hover:text-cyan-500 focus:outline-none"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <Link
-                    href={link.href}
-                    className={`px-3 py-2 rounded-md ${
-                      pathName === link.href
-                        ? "text-cyan-700 dark:text-cyan-500 border-b-2 border-cyan-700 dark:border-cyan-500"
-                        : "text-gray-700 dark:text-gray-300 hover:text-cyan-700 dark:hover:text-cyan-500"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-
-              {/* Conditionally render auth links/buttons */}
-              {session?.user ? (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="px-2 py-1 rounded-md dark:text-white text-black text-sm font-medium hover:bg-red-600 hover:text-white dark:hover:text-black transition-colors"
-                >
-                  Sign Out
-                </motion.button>
-              ) : (
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link
-                    href="/signin"
-                    className="px-4 py-2 rounded-md bg-cyan-700 text-white text-sm font-medium hover:bg-cyan-700 transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                </motion.div>
-              )}
-
-              {/* Theme Toggle */}
-              <ModeToggle />
-            </motion.div>
+                  {isOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h16m-7 6h7"
+                    />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
+
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                className="absolute right-8 w-full md:w-fit bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg md:shadow-md md:rounded-b-lg"
+              >
+                <div className="px-2 pt-2 pb-3 space-y-1 md:min-w-[150px]">
+                  {navLinks.map((link) => (
+                    <motion.div
+                      key={link.href}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-sm font-medium"
+                    >
+                      <Link
+                        href={link.href}
+                        className={`block px-3 py-2 rounded-md ${
+                          pathName === link.href
+                            ? "text-cyan-700 dark:text-cyan-500 bg-gray-100 dark:bg-gray-700"
+                            : "text-gray-700 dark:text-gray-300 hover:text-cyan-700 dark:hover:text-cyan-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  {session?.user ? (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        signOut({ callbackUrl: "/" });
+                        setIsOpen(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 rounded-md dark:text-white text-black text-sm font-medium hover:bg-red-600 hover:text-white dark:hover:text-black transition-colors"
+                    >
+                      Sign Out
+                    </motion.button>
+                  ) : (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Link
+                        href="/signin"
+                        className="block px-3 py-2 rounded-md bg-cyan-700 text-white text-sm font-medium hover:bg-cyan-800 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                    </motion.div>
+                  )}
+
+                  <div className="px-3 py-2">
+                    <ModeToggle />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.nav>
 
