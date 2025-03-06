@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import { XMarkIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import LabelDashboard from "@/components/LabelDashboard";
 import NewImageComponent from "@/components/NewImageComponent";
+import CaptureTestImages from "@/components/CaptureTestImages"; // New component
 import { motion, AnimatePresence } from "framer-motion";
+import TestDataDashboard from "@/components/evaluation_components/TestDataDashboard";
 
 export default function NewImage() {
   const [activeComponent, setActiveComponent] = useState("newLabel");
@@ -56,6 +58,26 @@ export default function NewImage() {
             >
               📁 {isSidebarOpen && "Manage Labels"}
             </li>
+            <li
+              onClick={() => setActiveComponent("captureTest")}
+              className={`cursor-pointer ${
+                activeComponent === "captureTest"
+                  ? "text-cyan-500"
+                  : "text-gray-600 dark:text-gray-400"
+              } hover:text-cyan-500 dark:hover:text-cyan-400`}
+            >
+              📸 {isSidebarOpen && "Capture Test Images"}
+            </li>
+            <li
+              onClick={() => setActiveComponent("manageTestData")}
+              className={`cursor-pointer ${
+                activeComponent === "manageTestData"
+                  ? "text-cyan-500"
+                  : "text-gray-600 dark:text-gray-400"
+              } hover:text-cyan-500 dark:hover:text-cyan-400`}
+            >
+              🖼️ {isSidebarOpen && "Manage Test Data"}
+            </li>
           </ul>
         </nav>
       </aside>
@@ -77,7 +99,7 @@ export default function NewImage() {
               >
                 <NewImageComponent />
               </motion.div>
-            ) : (
+            ) : activeComponent === "manageLabels" ? (
               <motion.div
                 key="manageLabels"
                 initial={{ opacity: 0, x: 20 }}
@@ -86,6 +108,26 @@ export default function NewImage() {
                 transition={{ duration: 0.25 }}
               >
                 <LabelDashboard />
+              </motion.div>
+            ) : activeComponent === "manageTestData" ? (
+              <motion.div
+                key="manageTestData"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <TestDataDashboard />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="captureTest"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <CaptureTestImages />
               </motion.div>
             )}
           </AnimatePresence>

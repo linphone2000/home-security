@@ -14,9 +14,9 @@ const Navbar = () => {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/facecapture", label: "Monitor" },
-    { href: "/newimage", label: "New Image" }, // Longest label
-    { href: "/test", label: "Test" },
+    { href: "/facecapture", label: "Start Monitoring" },
+    { href: "/newimage", label: "Manage Labels" },
+    { href: "/test", label: "System Testing" },
   ];
 
   // Animation variants for dropdown
