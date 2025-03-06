@@ -4,7 +4,7 @@ import { fetchLabels, fetchTestImages } from "./utils";
 import { runRecognitionTest } from "./faceRecognition";
 
 export default function FaceRecognitionTest() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState({ isLoading: true, progress: 0 });
   const [labels, setLabels] = useState([]);
   const [testImages, setTestImages] = useState([]);
   const [results, setResults] = useState({
@@ -32,7 +32,7 @@ export default function FaceRecognitionTest() {
         );
         setResults(testResults);
       } else {
-        setLoading(false);
+        setLoading({ isLoading: false, progress: 100 });
       }
     };
     loadInitialData();
@@ -47,10 +47,10 @@ export default function FaceRecognitionTest() {
     setResults(testResults);
   };
 
-  if (loading) {
+  if (loading.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300">
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col items-center space-y-4">
           <svg
             className="animate-spin h-8 w-8 text-cyan-700 dark:text-cyan-500"
             xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +72,10 @@ export default function FaceRecognitionTest() {
             ></path>
           </svg>
           <p className="text-lg">
-            Loading models and processing test images...
+            Loading models and processing test images...{" "}
+            <span className="font-semibold text-cyan-700 dark:text-cyan-500">
+              {Math.round(loading.progress)}%
+            </span>
           </p>
         </div>
       </div>

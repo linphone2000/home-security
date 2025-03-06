@@ -2,45 +2,66 @@ import * as faceapi from "face-api.js/dist/face-api.min.js";
 
 const MODEL_URL = "/models";
 
-export const loadLabeledImages = async (labels) => {
-  const labeledFaceDescriptors = await Promise.all(
-    labels.map(async (label) => {
-      try {
-        const imgUrl = `/labeled_images/${label}/ref.jpg`;
-        const img = await faceapi.fetchImage(imgUrl);
-        const detection = await faceapi
-          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks()
-          .withFaceDescriptor();
-        if (!detection) {
-          console.warn(`No face detected in reference image: ${imgUrl}`);
-          return null;
-        }
-        return new faceapi.LabeledFaceDescriptors(label, [
-          detection.descriptor,
-        ]);
-      } catch (error) {
-        console.error(`Error loading reference for ${label}:`, error);
-        return null;
+export const loadLabeledImages = async (labels, setProgress) => {
+  const labeledFaceDescriptors = [];
+  const increment = 10 / (labels.length || 1); // Avoid division by zero
+  for (let i = 0; i < labels.length; i++) {
+    const label = labels[i];
+    try {
+      const imgUrl = `/labeled_images/${label}/ref.jpg`;
+      const img = await faceapi.fetchImage(imgUrl);
+      const detection = await faceapi
+        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      if (!detection) {
+        console.warn(`No face detected in reference image: ${imgUrl}`);
+      } else {
+        labeledFaceDescriptors.push(
+          new faceapi.LabeledFaceDescriptors(label, [detection.descriptor])
+        );
       }
-    })
-  );
-  return labeledFaceDescriptors.filter(Boolean);
+      setProgress((prev) => {
+        const newProgress = Math.min(prev + increment, 70); // Cap at 70% until test images
+        console.log(
+          `Reference image ${i + 1}/${labels.length}, Progress: ${newProgress}%`
+        );
+        return newProgress;
+      });
+    } catch (error) {
+      console.error(`Error loading reference for ${label}:`, error);
+      setProgress((prev) => prev + increment); // Still increment on error
+    }
+  }
+  return labeledFaceDescriptors;
 };
 
 export const runRecognitionTest = async (labels, testImages, setLoading) => {
-  setLoading(true);
+  setLoading({ isLoading: true, progress: 0 });
+  console.log("Starting at 0%");
 
   console.log("Loading face-api.js models...");
   await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-  console.log("Models loaded successfully");
+  setLoading({ isLoading: true, progress: 20 });
+  console.log("tinyFaceDetector loaded, Progress: 20%");
 
-  const labeledFaceDescriptors = await loadLabeledImages(labels);
+  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+  setLoading({ isLoading: true, progress: 40 });
+  console.log("faceLandmark68Net loaded, Progress: 40%");
+
+  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+  setLoading({ isLoading: true, progress: 60 });
+  console.log("faceRecognitionNet loaded, Progress: 60%");
+
+  const labeledFaceDescriptors = await loadLabeledImages(labels, (progress) =>
+    setLoading((prev) => ({
+      isLoading: true,
+      progress: Math.min(progress, 70),
+    }))
+  );
   if (labeledFaceDescriptors.length === 0) {
     console.warn("No valid labeled images found");
-    setLoading(false);
+    setLoading({ isLoading: false, progress: 100 });
     return {
       total: 0,
       truePositives: 0,
@@ -54,10 +75,12 @@ export const runRecognitionTest = async (labels, testImages, setLoading) => {
 
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.45);
   console.log("FaceMatcher initialized");
+  setLoading({ isLoading: true, progress: 70 });
+  console.log("Progress: 70%");
 
   if (testImages.length === 0) {
     console.warn("No test images available to process");
-    setLoading(false);
+    setLoading({ isLoading: false, progress: 100 });
     return {
       total: 0,
       truePositives: 0,
@@ -80,7 +103,9 @@ export const runRecognitionTest = async (labels, testImages, setLoading) => {
   let totalTime = 0;
 
   console.log(`Starting recognition for ${testImages.length} images...`);
-  for (const imageName of testImages) {
+  const progressPerImage = 30 / (testImages.length || 1); // Remaining 30% spread across images
+  for (let i = 0; i < testImages.length; i++) {
+    const imageName = testImages[i];
     const trueLabel = imageName.split("_")[0];
     const imgUrl = `/test_images/${imageName}`;
     const isKnown = labels.includes(trueLabel);
@@ -154,6 +179,13 @@ export const runRecognitionTest = async (labels, testImages, setLoading) => {
       });
 
       totalTime += performance.now() - startTime;
+      setLoading((prev) => {
+        const newProgress = Math.min(70 + (i + 1) * progressPerImage, 100);
+        console.log(
+          `Test image ${i + 1}/${testImages.length}, Progress: ${newProgress}%`
+        );
+        return { isLoading: true, progress: newProgress };
+      });
     } catch (error) {
       console.error(`Error processing ${imgUrl}:`, error);
       testResults.total++;
@@ -168,11 +200,20 @@ export const runRecognitionTest = async (labels, testImages, setLoading) => {
         predictedLabel: "unknown",
         isCorrect: !isKnown,
       });
+      setLoading((prev) => {
+        const newProgress = Math.min(70 + (i + 1) * progressPerImage, 100);
+        console.log(
+          `Test image ${i + 1}/${
+            testImages.length
+          } (error), Progress: ${newProgress}%`
+        );
+        return { isLoading: true, progress: newProgress };
+      });
     }
   }
 
   testResults.processingTime = totalTime / 1000;
   console.log("Test results:", testResults);
-  setLoading(false);
+  setLoading({ isLoading: false, progress: 100 });
   return testResults;
 };
