@@ -13,16 +13,19 @@ export default function ObjectDetection({ onPersonDetected }) {
 
   const webcamRefObj = useRef(null);
   const canvasRefObj = useRef(null);
-  let interval = null;
+  const lastFrameTime = useRef(performance.now());
+  const frameCount = useRef(0);
+  const fps = useRef(0); // Use ref instead of state for FPS
+  const animationFrameId = useRef(null);
 
-  // Dynamically load p5.js + ml5.js
+  // Dynamically load ml5.js
   useEffect(() => {
     const loadScripts = () => {
-      const script2 = document.createElement("script");
-      script2.src = "https://unpkg.com/ml5@0.7.1/dist/ml5.min.js";
-      script2.async = true;
-      script2.onload = () => checkScriptsLoaded();
-      document.body.appendChild(script2);
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/ml5@0.7.1/dist/ml5.min.js";
+      script.async = true;
+      script.onload = () => checkScriptsLoaded();
+      document.body.appendChild(script);
     };
 
     const checkScriptsLoaded = () => {
@@ -33,9 +36,10 @@ export default function ObjectDetection({ onPersonDetected }) {
 
     loadScripts();
     return () => {
-      document.body
-        .querySelectorAll("script")
-        .forEach((script) => script.remove());
+      const script = document.querySelector(
+        `script[src="https://unpkg.com/ml5@0.7.1/dist/ml5.min.js"]`
+      );
+      if (script) script.remove();
     };
   }, []);
 
@@ -60,8 +64,21 @@ export default function ObjectDetection({ onPersonDetected }) {
     }
   };
 
-  // Periodically run object detection
-  const runPredictions = async () => {
+  // Calculate FPS
+  const calculateFps = (now) => {
+    frameCount.current += 1;
+    const elapsed = now - lastFrameTime.current;
+
+    if (elapsed > 1000) {
+      // Update FPS every 1 second
+      fps.current = Math.round((frameCount.current * 1000) / elapsed);
+      frameCount.current = 0;
+      lastFrameTime.current = now;
+    }
+  };
+
+  // Run object detection and render
+  const runPredictions = async (timestamp) => {
     if (
       objectDetectionModel &&
       webcamRefObj.current &&
@@ -79,7 +96,16 @@ export default function ObjectDetection({ onPersonDetected }) {
         canvasRefObj.current.height
       );
 
+      // Draw bounding boxes and confidence scores
       drawOnCanvas(predictions, ctx);
+
+      // Draw FPS on the canvas
+      ctx.font = "bold 20px Arial";
+      ctx.fillStyle = "white";
+      ctx.fillText(`FPS: ${fps.current}`, 10, 30);
+
+      // Calculate FPS
+      calculateFps(timestamp);
 
       const foundPerson = predictions.some(
         (pred) => pred.label.toLowerCase() === "person"
@@ -88,14 +114,19 @@ export default function ObjectDetection({ onPersonDetected }) {
         onPersonDetected();
       }
     }
+    animationFrameId.current = requestAnimationFrame(runPredictions);
   };
 
-  //Start detection loop
+  // Start detection loop
   useEffect(() => {
     if (objectDetectionModel) {
-      interval = setInterval(runPredictions, 200);
+      animationFrameId.current = requestAnimationFrame(runPredictions);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
   }, [objectDetectionModel]);
 
   if (loading) {
