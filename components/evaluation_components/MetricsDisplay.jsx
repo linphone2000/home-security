@@ -56,37 +56,37 @@ export default function MetricsDisplay({ overallMetrics, results }) {
           <p>
             <span className="font-medium">Accuracy:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
-              {accuracy.toFixed(2)}%
+              {(accuracy * 100).toFixed(2)}%
             </span>
           </p>
           <p>
             <span className="font-medium">Precision:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
-              {precision.toFixed(2)}%
+              {(precision * 100).toFixed(2)}%
             </span>
           </p>
           <p>
             <span className="font-medium">Recall:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
-              {recall.toFixed(2)}%
+              {(recall * 100).toFixed(2)}%
             </span>
           </p>
           <p>
             <span className="font-medium">Specificity:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
-              {specificity.toFixed(2)}%
+              {(specificity * 100).toFixed(2)}%
             </span>
           </p>
           <p>
             <span className="font-medium">False Negative Rate:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
-              {falseNegativeRate.toFixed(2)}%
+              {(falseNegativeRate * 100).toFixed(2)}%
             </span>
           </p>
           <p>
             <span className="font-medium">Macro F1 Score:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
-              {(macroF1 * 100).toFixed(2)}%
+              {macroF1.toFixed(4)}
             </span>
           </p>
           <p>

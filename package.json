@@ -20,7 +20,7 @@
     "clsx": "^2.1.1",
     "encoding": "^0.1.13",
     "face-api.js": "^0.22.2",
-    "framer-motion": "^11.11.17",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^0.456.0",
     "mongoose": "^8.8.4",
     "next": "15.0.3",

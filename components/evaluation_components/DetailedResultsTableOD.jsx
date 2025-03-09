@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function DetailedResultsTable({
   imageDetails,
@@ -6,10 +6,25 @@ export default function DetailedResultsTable({
   setCurrentPage,
   itemsPerPage,
 }) {
-  const totalItems = imageDetails.length;
+  const [resultFilter, setResultFilter] = useState("All");
+
+  const handleFilterChange = (setter) => (e) => {
+    setter(e.target.value);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+
+  // Filter image details based on result
+  const filteredImageDetails = imageDetails.filter((detail) => {
+    if (resultFilter === "All") return true;
+    const isCorrect =
+      detail.detected !== null && detail.detected === detail.expected;
+    return resultFilter === "True" ? isCorrect : !isCorrect;
+  });
+
+  const totalItems = filteredImageDetails.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedDetails = imageDetails.slice(
+  const paginatedImageDetails = filteredImageDetails.slice(
     startIndex,
     startIndex + itemsPerPage
   );
@@ -22,67 +37,109 @@ export default function DetailedResultsTable({
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-        Detailed Results
-      </h2>
-      <div className="overflow-x-auto">
+    <>
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+          Detailed Results
+        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="result-filter"
+              className="text-gray-700 dark:text-gray-300 font-medium"
+            >
+              Result:
+            </label>
+            <select
+              id="result-filter"
+              value={resultFilter}
+              onChange={handleFilterChange(setResultFilter)}
+              className="px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            >
+              <option value="All">All Results</option>
+              <option value="True">Correct (True)</option>
+              <option value="False">Incorrect (False)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div className="overflow-x-auto bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md border border-gray-200 dark:border-gray-600">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr>
-              <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+            <tr className="bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200">
+              <th className="p-3 border-b border-gray-200 dark:border-gray-600">
                 Image
               </th>
-              <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+              <th className="p-3 border-b border-gray-200 dark:border-gray-600">
                 Expected
               </th>
-              <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+              <th className="p-3 border-b border-gray-200 dark:border-gray-600">
                 Detected
               </th>
-              <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+              <th className="p-3 border-b border-gray-200 dark:border-gray-600">
                 Result
               </th>
-              <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+              <th className="p-3 border-b border-gray-200 dark:border-gray-600">
                 Processing Time
               </th>
             </tr>
           </thead>
           <tbody>
-            {paginatedDetails.map((detail, index) => (
-              <tr key={index}>
-                <td className="py-2 px-4 border-t border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                  {detail.image.split("/").pop()}
-                </td>
-                <td className="py-2 px-4 border-t border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                  {detail.expected ? "Person" : "No Person"}
-                </td>
-                <td className="py-2 px-4 border-t border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                  {detail.detected !== null
-                    ? detail.detected
-                      ? "Person"
-                      : "No Person"
-                    : "N/A"}
-                </td>
-                <td
-                  className={`py-2 px-4 border-t border-gray-200 dark:border-gray-600 ${
-                    detail.detected === null
-                      ? "text-red-600 dark:text-red-400"
-                      : detail.detected === detail.expected
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
-                  }`}
+            {paginatedImageDetails.length > 0 ? (
+              paginatedImageDetails.map((detail, index) => (
+                <tr
+                  key={index}
+                  className="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
-                  {detail.detected === null
-                    ? detail.error || "Failed"
-                    : detail.detected === detail.expected
-                    ? "Correct"
-                    : "Incorrect"}
-                </td>
-                <td className="py-2 px-4 border-t border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                  {detail.time ? `${(detail.time / 1000).toFixed(3)}s` : "N/A"}
+                  <td className="p-3">
+                    <img
+                      src={detail.image}
+                      alt={detail.image.split("/").pop()}
+                      className="w-20 h-20 object-cover rounded-md shadow-sm"
+                    />
+                  </td>
+                  <td className="p-3 text-gray-700 dark:text-gray-300">
+                    {detail.expected ? "Person" : "No Person"}
+                  </td>
+                  <td className="p-3 text-gray-700 dark:text-gray-300">
+                    {detail.detected !== null
+                      ? detail.detected
+                        ? "Person"
+                        : "No Person"
+                      : "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {detail.detected === null ? (
+                      <span className="text-red-600 dark:text-red-400 font-medium">
+                        {detail.error || "Failed"}
+                      </span>
+                    ) : detail.detected === detail.expected ? (
+                      <span className="text-green-600 dark:text-green-400 font-medium">
+                        True
+                      </span>
+                    ) : (
+                      <span className="text-red-600 dark:text-red-400 font-medium">
+                        False
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-3 text-gray-700 dark:text-gray-300">
+                    {detail.time
+                      ? `${(detail.time / 1000).toFixed(3)}s`
+                      : "N/A"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="p-3 text-center text-gray-700 dark:text-gray-300"
+                >
+                  No results for this filter
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -107,6 +164,6 @@ export default function DetailedResultsTable({
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 }

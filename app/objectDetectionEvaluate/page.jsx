@@ -26,77 +26,80 @@ export default function ObjectDetectionEvaluation() {
   const itemsPerPage = 25;
 
   // Load ml5.js, detector, and test images on initial render
-  useEffect(() => {
-    const loadInitialData = async () => {
-      // Load ml5.js
-      console.log("Starting to load ml5.js...");
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/ml5@0.7.1/dist/ml5.min.js";
-      script.async = true;
-      script.onerror = () => {
-        console.error("Failed to load ml5.js script.");
+  const loadInitialData = async () => {
+    console.log("Starting to load ml5.js...");
+    setLoading({ isLoading: true, progress: 0 });
+
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/ml5@0.7.1/dist/ml5.min.js";
+    script.async = true;
+    script.onerror = () => {
+      console.error("Failed to load ml5.js script.");
+      setLoading({ isLoading: false, progress: 100 });
+    };
+    document.body.appendChild(script);
+
+    script.onload = async () => {
+      console.log("ml5.js script loaded successfully.");
+      if (typeof ml5 === "undefined") {
+        console.error("ml5 is not defined.");
         setLoading({ isLoading: false, progress: 100 });
         return;
-      };
-      document.body.appendChild(script);
+      }
 
-      script.onload = async () => {
-        console.log("ml5.js script loaded successfully.");
-        if (typeof ml5 === "undefined") {
-          console.error("ml5 is not defined.");
-          setLoading({ isLoading: false, progress: 100 });
-          return;
-        }
-
-        console.log("ml5 is defined. Initializing COCO-SSD detector...");
-        let detector;
-        try {
-          detector = await new Promise((resolve, reject) => {
-            ml5.objectDetector("cocossd", (err, model) => {
-              if (err) {
-                console.error("Detector initialization failed:", err);
-                reject(err);
-                return;
-              }
-              console.log("Detector initialized successfully.");
-              resolve(model);
-            });
+      console.log("Initializing COCO-SSD detector...");
+      let detector;
+      try {
+        detector = await new Promise((resolve, reject) => {
+          ml5.objectDetector("cocossd", (err, model) => {
+            if (err) {
+              console.error("Detector initialization failed:", err);
+              reject(err);
+              return;
+            }
+            console.log("Detector initialized successfully.");
+            resolve(model);
           });
-        } catch (err) {
-          setLoading({ isLoading: false, progress: 100 });
-          return;
-        }
+        });
+      } catch (err) {
+        setLoading({ isLoading: false, progress: 100 });
+        return;
+      }
 
-        const fetchedTestImages = await fetchTestImages();
-        setTestImages(fetchedTestImages);
+      // Fetch test images
+      const fetchedTestImages = await fetchTestImages();
+      console.log("Fetched test images:", fetchedTestImages);
+      setTestImages(fetchedTestImages);
 
-        if (fetchedTestImages.length > 0) {
-          const testResults = await runObjectDetectionTest(
-            detector,
-            fetchedTestImages,
-            setLoading
-          );
-          setResults(testResults);
-          console.log("Test results:", testResults);
-        } else {
-          setLoading({ isLoading: false, progress: 100 });
-        }
-      };
-
-      return () => {
-        const script = document.querySelector(
-          `script[src="https://unpkg.com/ml5@0.7.1/dist/ml5.min.js"]`
+      if (fetchedTestImages.length > 0) {
+        const testResults = await runObjectDetectionTest(
+          detector,
+          fetchedTestImages,
+          setLoading
         );
-        if (script) script.remove();
-      };
+        setResults(testResults);
+        console.log("Test results:", testResults);
+      } else {
+        console.log("No test images found.");
+        setLoading({ isLoading: false, progress: 100 });
+      }
     };
 
+    return () => {
+      const script = document.querySelector(
+        `script[src="https://unpkg.com/ml5@0.7.1/dist/ml5.min.js"]`
+      );
+      if (script) script.remove();
+    };
+  };
+
+  // Initial load
+  useEffect(() => {
     loadInitialData();
   }, []);
 
-  // Rerun test with the same test images
+  // Re-run test with the same or refreshed test images
   const handleRerunTest = async () => {
-    if (!testImages.length) return;
     setLoading({ isLoading: true, progress: 0 });
     setCurrentPage(1);
 
@@ -106,7 +109,6 @@ export default function ObjectDetectionEvaluation() {
     script.onerror = () => {
       console.error("Failed to load ml5.js script on rerun.");
       setLoading({ isLoading: false, progress: 100 });
-      return;
     };
     document.body.appendChild(script);
 
@@ -134,13 +136,23 @@ export default function ObjectDetectionEvaluation() {
         return;
       }
 
-      const testResults = await runObjectDetectionTest(
-        detector,
-        testImages,
-        setLoading
-      );
-      setResults(testResults);
-      console.log("Rerun test results:", testResults);
+      // Re-fetch test images to include new uploads
+      const fetchedTestImages = await fetchTestImages();
+      console.log("Re-fetched test images:", fetchedTestImages);
+      setTestImages(fetchedTestImages);
+
+      if (fetchedTestImages.length > 0) {
+        const testResults = await runObjectDetectionTest(
+          detector,
+          fetchedTestImages,
+          setLoading
+        );
+        setResults(testResults);
+        console.log("Rerun test results:", testResults);
+      } else {
+        console.log("No test images found on rerun.");
+        setLoading({ isLoading: false, progress: 100 });
+      }
     };
   };
 

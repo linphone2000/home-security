@@ -2,21 +2,21 @@ import React from "react";
 
 export default function ConfusionMatrixTable({ matrix, allLabels }) {
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+    <>
+      <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
         Confusion Matrix
       </h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 mb-8">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr>
-              <th className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
-                Actual \ Predicted
+            <tr className="bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200">
+              <th className="p-3 border-b border-gray-200 dark:border-gray-600">
+                True \ Predicted
               </th>
               {allLabels.map((label) => (
                 <th
                   key={label}
-                  className="py-2 px-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white"
+                  className="p-3 border-b border-gray-200 dark:border-gray-600"
                 >
                   {label}
                 </th>
@@ -24,17 +24,24 @@ export default function ConfusionMatrixTable({ matrix, allLabels }) {
             </tr>
           </thead>
           <tbody>
-            {allLabels.map((actual) => (
-              <tr key={actual}>
-                <td className="py-2 px-4 border-t border-gray-200 dark:border-gray-600 font-medium text-gray-600 dark:text-gray-300">
-                  {actual}
+            {allLabels.map((trueLabel) => (
+              <tr
+                key={trueLabel}
+                className="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"
+              >
+                <td className="p-3 font-medium text-gray-700 dark:text-gray-300">
+                  {trueLabel}
                 </td>
-                {allLabels.map((predicted) => (
+                {allLabels.map((predLabel) => (
                   <td
-                    key={predicted}
-                    className="py-2 px-4 border-t border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                    key={predLabel}
+                    className={`p-3 text-center ${
+                      trueLabel === predLabel
+                        ? "bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-300"
+                        : "bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300"
+                    }`}
                   >
-                    {matrix[actual][predicted]}
+                    {matrix[trueLabel][predLabel]}
                   </td>
                 ))}
               </tr>
@@ -42,6 +49,6 @@ export default function ConfusionMatrixTable({ matrix, allLabels }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }

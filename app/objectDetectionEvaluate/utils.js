@@ -1,29 +1,19 @@
-// Fetch the list of test images
+// Fetch the list of test images from the API endpoint
 export const fetchTestImages = async () => {
-  const testImages = [
-    { src: "/test_set/image_withPerson_1.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_2.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_3.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_4.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_5.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_6.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_7.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_8.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_9.jpg", hasPerson: true },
-    { src: "/test_set/image_withPerson_10.jpg", hasPerson: true },
-    { src: "/test_set/image_noPerson_1.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_2.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_3.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_4.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_5.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_6.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_7.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_8.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_9.jpg", hasPerson: false },
-    { src: "/test_set/image_noPerson_10.jpg", hasPerson: false },
-  ];
-  console.log("Fetched test images:", testImages);
-  return testImages;
+  try {
+    const response = await fetch("/api/get-test-images-od");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch test images");
+    }
+
+    const testImages = await response.json();
+    console.log("[UTILS] Fetched test images:", testImages);
+    return testImages;
+  } catch (error) {
+    console.error("[UTILS] Error fetching test images:", error);
+    return [];
+  }
 };
 
 // Run object detection test on all images
