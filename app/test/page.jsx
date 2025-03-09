@@ -90,7 +90,7 @@ export default function FaceRecognitionTest() {
 
         <MetricsDisplay overallMetrics={overallMetrics} results={results} />
         <ConfusionMatrixTable matrix={confusionMatrix} allLabels={allLabels} />
-        <PerLabelMetricsTable metricsPerLabel={metricsPerLabel} />
+        {/* <PerLabelMetricsTable metricsPerLabel={metricsPerLabel} /> */}
         <DetailedResultsTable
           imageDetails={results.imageDetails}
           knownLabels={labels}
