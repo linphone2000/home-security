@@ -84,7 +84,7 @@ export default function MetricsDisplay({ overallMetrics, results }) {
             </span>
           </p>
           <p>
-            <span className="font-medium">Macro F1 Score:</span>{" "}
+            <span className="font-medium">F1 Score:</span>{" "}
             <span className="text-cyan-700 dark:text-cyan-500">
               {macroF1.toFixed(4)}
             </span>

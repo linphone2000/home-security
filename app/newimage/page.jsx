@@ -73,7 +73,7 @@ export default function NewImage() {
           </h1>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 z-50" // Added z-50
             aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             {isSidebarOpen ? (
@@ -106,7 +106,7 @@ export default function NewImage() {
                   </span>
                   <span
                     className={`text-sm font-medium transition-opacity duration-300 ${
-                      isSidebarOpen ? "opacity-100" : "opacity-0 w-0"
+                      isSidebarOpen ? "opacity-100" : "opacity-0"
                     }`}
                   >
                     {item.label}
