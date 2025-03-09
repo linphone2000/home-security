@@ -95,7 +95,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
     }
   }, [MODEL_URL, labels]);
 
-  // Send email function (adapted from ContactMe)
+  // Send email function
   const sendEmail = () => {
     const emailData = {
       name: "System Alert",
@@ -208,7 +208,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
 
   // Loading state
   if (loading) {
-    return <p className="text-white">Loading Face Recognition...</p>;
+    return <p className="">Loading Face Recognition...</p>;
   }
 
   return (

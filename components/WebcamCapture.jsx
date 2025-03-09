@@ -7,6 +7,7 @@ import FaceRecognition from "./FaceRecognition";
 export default function WebcamCapture() {
   const [mode, setMode] = useState("object");
   const [switching, setSwitching] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const personCountRef = useRef(0);
   const noPersonCountRef = useRef(0);
 
@@ -25,9 +26,9 @@ export default function WebcamCapture() {
       noPersonCountRef.current = 0;
 
       if (personCountRef.current >= PERSON_THRESHOLD) {
+        setSwitching(true);
         setMode("face");
         resetCounts();
-        setSwitching(true);
       }
     }
   };
@@ -39,22 +40,23 @@ export default function WebcamCapture() {
       personCountRef.current = 0;
 
       if (noPersonCountRef.current >= NO_PERSON_THRESHOLD) {
+        setSwitching(true);
         setMode("object");
         resetCounts();
-        setSwitching(true);
       }
     }
   };
 
-  // Cooldown to prevent immediate switching back and forth
+  // Cooldown for switching and initialization
   useEffect(() => {
-    if (switching) {
+    if (switching || isInitializing) {
       const cooldown = setTimeout(() => {
         setSwitching(false);
-      }, 500);
+        setIsInitializing(false); 
+      }, 500); // 500ms cooldown
       return () => clearTimeout(cooldown);
     }
-  }, [switching]);
+  }, [switching, isInitializing]);
 
   // Remove semicolons from the page
   useEffect(() => {
@@ -72,22 +74,44 @@ export default function WebcamCapture() {
 
       let node;
       while ((node = walker.nextNode())) {
-        node.nodeValue = ""; // Hide the semicolon
+        node.nodeValue = "";
       }
     };
     removeSemicolonTextNodes();
   }, []);
 
+  // Determine the current message to display
+  const getMessage = () => {
+    if (isInitializing) {
+      return mode === "object"
+        ? "Initializing Object Detection..."
+        : "Initializing Face Recognition...";
+    }
+    if (switching) {
+      return mode === "face"
+        ? "Switching to Face Recognition..."
+        : "Switching to Object Detection...";
+    }
+    return mode === "object" ? "Object Detection" : "Face Recognition";
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-gray-100 dark:bg-gray-900">
-      <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-        {mode === "object" ? "Object Detection" : "Face Recognition"}
+      <h1
+        className={`text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6 transition-opacity duration-300 ${
+          switching || isInitializing ? "opacity-75" : "opacity-100"
+        }`}
+      >
+        {getMessage()}
       </h1>
       <div className="flex justify-center items-center w-full max-w-screen-lg">
-        {mode === "object" && (
+        {isInitializing || switching ? (
+          <div className="text-gray-600 dark:text-gray-400 animate-pulse">
+            {getMessage()}
+          </div>
+        ) : mode === "object" ? (
           <ObjectDetection onPersonDetected={handlePersonDetected} />
-        )}
-        {mode === "face" && (
+        ) : (
           <FaceRecognition
             MODEL_URL="/models"
             onNoFaceDetected={handleNoFaceDetected}
