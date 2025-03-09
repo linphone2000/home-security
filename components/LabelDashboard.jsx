@@ -105,7 +105,7 @@ const LabelDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-200">
-            Manage Labels
+            Manage Faces Labels
           </h1>
           <div className="relative">
             <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />

@@ -16,7 +16,7 @@ import {
   CubeIcon,
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
-} from "@heroicons/react/24/solid"; // Importing solid icons for better visual appeal
+} from "@heroicons/react/24/solid";
 
 const Navbar = () => {
   const pathName = usePathname();
@@ -52,12 +52,12 @@ const Navbar = () => {
     hidden: {
       opacity: 0,
       y: -10,
-      transition: { duration: 0.3, ease: "easeIn" },
+      transition: { duration: 0.2, ease: "easeIn" },
     },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut", staggerChildren: 0.1 },
+      transition: { duration: 0.2, ease: "easeOut", staggerChildren: 0.05 },
     },
   };
 
@@ -72,7 +72,7 @@ const Navbar = () => {
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className="fixed top-0 w-full bg-white dark:bg-gray-900 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-700 z-50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,7 +81,7 @@ const Navbar = () => {
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="flex-shrink-0 flex items-center space-x-3"
             >
               <Link
@@ -137,7 +137,7 @@ const Navbar = () => {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                className="absolute right-8 w-full md:w-64 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg md:shadow-md md:rounded-b-lg"
+                className="absolute right-0 md:right-8 w-full md:w-64 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg md:shadow-md md:rounded-b-lg"
               >
                 <div className="px-4 pt-4 pb-3 space-y-2">
                   {navLinks.map((link) => (

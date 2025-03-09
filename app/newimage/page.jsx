@@ -13,8 +13,9 @@ import LabelDashboard from "@/components/LabelDashboard";
 import NewImageComponent from "@/components/NewImageComponent";
 import CaptureTestImages from "@/components/CaptureTestImages";
 import CaptureTestImagesOD from "@/components/CaptureTestImagesOD";
-import { motion, AnimatePresence } from "framer-motion";
 import TestDataDashboard from "@/components/evaluation_components/TestDataDashboard";
+import TestDataDashboardOD from "@/components/evaluation_components/TestDataDashboardOD";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function NewImage() {
   const [activeComponent, setActiveComponent] = useState("newLabel");
@@ -46,6 +47,11 @@ export default function NewImage() {
       id: "captureTestOD",
       label: "Capture Test Objects Images",
       icon: <CubeIcon className="w-5 h-5" />,
+    },
+    {
+      id: "manageTestDataOD",
+      label: "Manage Test Objects Data",
+      icon: <PhotoIcon className="w-5 h-5" />,
     },
   ];
 
@@ -119,7 +125,7 @@ export default function NewImage() {
       {/* Main Content */}
       <div className="flex-1 p-8">
         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-200 mb-6 text-center">
-          Label Management Dashboard
+          Data Management Dashboard
         </h1>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <AnimatePresence mode="wait">
@@ -162,6 +168,16 @@ export default function NewImage() {
                 transition={{ duration: 0.25 }}
               >
                 <CaptureTestImagesOD />
+              </motion.div>
+            ) : activeComponent === "manageTestDataOD" ? (
+              <motion.div
+                key="manageTestDataOD"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <TestDataDashboardOD />
               </motion.div>
             ) : (
               <motion.div

@@ -229,7 +229,7 @@ export default function CaptureTestImages() {
   return (
     <div className="flex flex-col items-center space-y-6 p-4">
       <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-200">
-        Capture Test Images
+        Capture Test Images for Face Recognition
       </h2>
       {!isWebcamActive && (
         <div className="flex flex-col items-center space-y-4">

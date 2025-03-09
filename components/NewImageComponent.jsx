@@ -73,7 +73,7 @@ const NewImageComponent = () => {
   return (
     <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md max-w-lg mx-auto">
       <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-200 text-center mb-4">
-        Add New Label
+        Add New Face
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
