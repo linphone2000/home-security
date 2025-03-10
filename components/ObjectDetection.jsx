@@ -15,7 +15,7 @@ export default function ObjectDetection({ onPersonDetected }) {
   const canvasRefObj = useRef(null);
   const lastFrameTime = useRef(performance.now());
   const frameCount = useRef(0);
-  const fps = useRef(0); // Use ref instead of state for FPS
+  const fps = useRef(0);
   const animationFrameId = useRef(null);
 
   // Dynamically load ml5.js
@@ -111,7 +111,7 @@ export default function ObjectDetection({ onPersonDetected }) {
         (pred) => pred.label.toLowerCase() === "person"
       );
       if (foundPerson) {
-        // onPersonDetected();
+        onPersonDetected();
       }
     }
     animationFrameId.current = requestAnimationFrame(runPredictions);
