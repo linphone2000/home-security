@@ -111,7 +111,7 @@ export default function ObjectDetection({ onPersonDetected }) {
         (pred) => pred.label.toLowerCase() === "person"
       );
       if (foundPerson) {
-        onPersonDetected();
+        // onPersonDetected();
       }
     }
     animationFrameId.current = requestAnimationFrame(runPredictions);

@@ -120,7 +120,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
     emailCooldownRef.current = true;
     setTimeout(() => {
       emailCooldownRef.current = false;
-    }, (EMAIL_COOLDOWN * 1000) / 30); // Convert frames to milliseconds (~30 FPS)
+    }, (EMAIL_COOLDOWN * 1000) / 30); // Convert frames to milliseconds
   };
 
   // Start face detection
