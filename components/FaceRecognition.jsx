@@ -16,6 +16,9 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
   const noFaceCountRef = useRef(0);
   const strangerCountRef = useRef(0);
   const emailCooldownRef = useRef(false);
+  const lastFrameTime = useRef(performance.now()); // For FPS tracking
+  const frameCount = useRef(0); // For FPS tracking
+  const fps = useRef(0); // For FPS tracking
 
   const NO_FACE_THRESHOLD = 200;
   const STRANGER_THRESHOLD = 150; // 5 seconds at 30 FPS
@@ -141,6 +144,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
           webcamRef.current.video &&
           webcamRef.current.video.readyState === 4
         ) {
+          const startTime = performance.now(); // Start timing
           const detections = await faceapi
             .detectAllFaces(
               webcamRef.current.video,
@@ -157,6 +161,16 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
           const canvas = canvasRef.current;
           const ctx = canvas.getContext("2d");
           ctx.clearRect(0, 0, videoWidth, videoHeight);
+
+          // Calculate FPS
+          const now = performance.now();
+          frameCount.current += 1;
+          const elapsed = now - lastFrameTime.current;
+          if (elapsed > 1000) {
+            fps.current = Math.round((frameCount.current * 1000) / elapsed);
+            frameCount.current = 0;
+            lastFrameTime.current = now;
+          }
 
           if (faceMatcherRef.current && resizedDetections.length > 0) {
             noFaceCountRef.current = 0;
@@ -193,6 +207,15 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
               onNoFaceDetected();
             }
           }
+
+          // Draw FPS
+          ctx.font = "bold 20px Arial";
+          ctx.fillStyle = "white";
+          ctx.fillText(`FPS: ${fps.current}`, 10, 30);
+
+          const endTime = performance.now(); // End timing
+          const processTime = endTime - startTime; // Calculate processing time
+          console.log(`Processing Time: ${processTime.toFixed(2)}ms`); // Log processing time
 
           requestAnimationFrame(faceLoop);
         } else {

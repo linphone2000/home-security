@@ -84,6 +84,7 @@ export default function ObjectDetection({ onPersonDetected }) {
       webcamRefObj.current &&
       webcamRefObj.current.video.readyState === 4
     ) {
+      const startTime = performance.now(); // Start timing
       const predictions = await objectDetectionModel.detect(
         webcamRefObj.current.video
       );
@@ -106,6 +107,10 @@ export default function ObjectDetection({ onPersonDetected }) {
 
       // Calculate FPS
       calculateFps(timestamp);
+
+      const endTime = performance.now(); // End timing
+      const processTime = endTime - startTime; // Calculate processing time
+      console.log(`Processing Time: ${processTime.toFixed(2)}ms`); // Log processing time
 
       const foundPerson = predictions.some(
         (pred) => pred.label.toLowerCase() === "person"
