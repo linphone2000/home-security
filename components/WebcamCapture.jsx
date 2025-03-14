@@ -10,6 +10,7 @@ export default function WebcamCapture() {
   const [isInitializing, setIsInitializing] = useState(true);
   const personCountRef = useRef(0);
   const noPersonCountRef = useRef(0);
+  const switchStartTimeRef = useRef(null); // Ref to store start time of switching
 
   const PERSON_THRESHOLD = 5;
   const NO_PERSON_THRESHOLD = 5;
@@ -26,6 +27,7 @@ export default function WebcamCapture() {
       noPersonCountRef.current = 0;
 
       if (personCountRef.current >= PERSON_THRESHOLD) {
+        switchStartTimeRef.current = performance.now(); // Record start time
         setSwitching(true);
         setMode("face");
         resetCounts();
@@ -40,6 +42,7 @@ export default function WebcamCapture() {
       personCountRef.current = 0;
 
       if (noPersonCountRef.current >= NO_PERSON_THRESHOLD) {
+        switchStartTimeRef.current = performance.now(); // Record start time
         setSwitching(true);
         setMode("object");
         resetCounts();
@@ -51,12 +54,22 @@ export default function WebcamCapture() {
   useEffect(() => {
     if (switching || isInitializing) {
       const cooldown = setTimeout(() => {
+        if (switching && switchStartTimeRef.current !== null) {
+          const endTime = performance.now();
+          const switchTime = endTime - switchStartTimeRef.current;
+          console.log(
+            `Time to switch to ${
+              mode === "face" ? "Face Recognition" : "Object Detection"
+            }: ${switchTime.toFixed(2)}ms`
+          );
+          switchStartTimeRef.current = null; // Reset start time
+        }
         setSwitching(false);
-        setIsInitializing(false); 
+        setIsInitializing(false);
       }, 500); // 500ms cooldown
       return () => clearTimeout(cooldown);
     }
-  }, [switching, isInitializing]);
+  }, [switching, isInitializing, mode]); // Added mode to dependencies
 
   // Remove semicolons from the page
   useEffect(() => {
