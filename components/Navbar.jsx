@@ -31,7 +31,7 @@ const Navbar = () => {
       icon: <CameraIcon className="w-5 h-5" />,
     },
     {
-      href: "/newimage",
+      href: "/management",
       label: "Data Management",
       icon: <FolderIcon className="w-5 h-5" />,
     },
