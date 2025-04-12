@@ -196,6 +196,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
             }
 
             drawFaceDetections(resizedDetections, ctx, faceMatcherRef.current);
+            console.log(faceMatcherRef.current);
           } else {
             strangerCountRef.current = 0; // Reset if no face matcher
             noFaceCountRef.current++;
