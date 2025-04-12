@@ -150,4 +150,3 @@ The system leverages pre-trained models with the following datasets:
 - **EmailJS**: For enabling seamless email notifications.
 - **Next.js Community**: For a robust framework and deployment support.
 - **COCO and LFW Datasets**: For foundational training data enabling our models.
-```
