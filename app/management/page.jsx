@@ -8,6 +8,7 @@ import {
   CameraIcon,
   PhotoIcon,
   CubeIcon,
+  ChartBarIcon,
 } from "@heroicons/react/24/solid";
 import LabelDashboard from "@/components/LabelDashboard";
 import NewImageComponent from "@/components/NewImageComponent";
@@ -16,6 +17,7 @@ import CaptureTestImagesOD from "@/components/CaptureTestImagesOD";
 import TestDataDashboard from "@/components/evaluation_components/TestDataDashboard";
 import TestDataDashboardOD from "@/components/evaluation_components/TestDataDashboardOD";
 import { motion, AnimatePresence } from "framer-motion";
+import Chart from "@/components/Chart";
 
 export default function NewImage() {
   const [activeComponent, setActiveComponent] = useState("newLabel");
@@ -53,6 +55,11 @@ export default function NewImage() {
       label: "Manage Test Objects Data",
       icon: <PhotoIcon className="w-5 h-5" />,
     },
+    {
+      id: "viewCharts",
+      label: "View Performance Charts",
+      icon: <ChartBarIcon className="w-5 h-5" />,
+    },
   ];
 
   return (
@@ -73,7 +80,7 @@ export default function NewImage() {
           </h1>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 z-50" // Added z-50
+            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 z-50"
             aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             {isSidebarOpen ? (
@@ -112,10 +119,10 @@ export default function NewImage() {
                     {item.label}
                   </span>
                 </li>
-                {/* Add dividers after "Manage Faces" (index 1) and "Manage Test Faces Data" (index 3) */}
-                {(index === 1 || index === 3) && isSidebarOpen && (
-                  <hr className="border-t border-gray-200 dark:border-gray-600 my-2 mx-3" />
-                )}
+                {(index === 1 || index === 3 || index === 5) &&
+                  isSidebarOpen && (
+                    <hr className="border-t border-gray-200 dark:border-gray-600 my-2 mx-3" />
+                  )}
               </React.Fragment>
             ))}
           </ul>
@@ -179,7 +186,7 @@ export default function NewImage() {
               >
                 <TestDataDashboardOD />
               </motion.div>
-            ) : (
+            ) : activeComponent === "captureTest" ? (
               <motion.div
                 key="captureTest"
                 initial={{ opacity: 0, x: 20 }}
@@ -188,6 +195,16 @@ export default function NewImage() {
                 transition={{ duration: 0.25 }}
               >
                 <CaptureTestImages />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="viewCharts"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <Chart />
               </motion.div>
             )}
           </AnimatePresence>

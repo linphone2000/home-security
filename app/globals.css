@@ -38,6 +38,7 @@ nextjs-portal {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -70,7 +71,22 @@ nextjs-portal {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.chart-container {
+  height: 75vh;
+  /* 75% of viewport height */
+  width: 100%;
+}
+
+/* Mobile: Stack charts, each takes half of the 75vh total height */
+@media (max-width: 767px) {
+  .chart-container {
+    height: 37.5vh;
+    /* Half of 75vh, so both charts fit */
   }
 }
