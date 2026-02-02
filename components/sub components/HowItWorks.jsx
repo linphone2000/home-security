@@ -1,4 +1,9 @@
+import { Video, Cpu, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
+
+const stepIconClass =
+  "mx-auto mb-4 flex h-[180px] w-full max-w-[280px] items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 shadow-md";
+const iconClass = "h-20 w-20 text-cyan-600 dark:text-cyan-400";
 
 const HowItWorks = () => {
   const fadeInUp = {
@@ -38,11 +43,9 @@ const HowItWorks = () => {
               className="md:w-1/3 text-center md:pr-6 mb-8 md:mb-0"
               variants={fadeInUp}
             >
-              <img
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&cs=tinysrgb&fit=crop&w=500&h=300&q=80"
-                alt="Webcam Input"
-                className="rounded-lg shadow-md mb-4"
-              />
+              <div className={stepIconClass} aria-hidden>
+                <Video className={iconClass} />
+              </div>
               <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                 1. Capture Input
               </h4>
@@ -56,11 +59,9 @@ const HowItWorks = () => {
               className="md:w-1/3 text-center md:px-6 mb-8 md:mb-0"
               variants={fadeInUp}
             >
-              <img
-                src="https://d3caycb064h6u1.cloudfront.net/wp-content/uploads/2022/10/dataprocessing-scaled.jpg"
-                alt="Data Processing"
-                className="rounded-lg shadow-md mb-4"
-              />
+              <div className={stepIconClass} aria-hidden>
+                <Cpu className={iconClass} />
+              </div>
               <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                 2. Analyze Input
               </h4>
@@ -74,11 +75,9 @@ const HowItWorks = () => {
               className="md:w-1/3 text-center md:pl-6"
               variants={fadeInUp}
             >
-              <img
-                src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?crop=entropy&cs=tinysrgb&fit=crop&w=500&h=300&q=80"
-                alt="Results Display"
-                className="rounded-lg shadow-md mb-4"
-              />
+              <div className={stepIconClass} aria-hidden>
+                <LayoutDashboard className={iconClass} />
+              </div>
               <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                 3. Get Results
               </h4>

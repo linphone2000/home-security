@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js/dist/face-api.min.js";
 import Webcam from "react-webcam";
 import { drawFaceDetections } from "@/lib/drawFace";
@@ -41,7 +41,7 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
   console.log(labels);
 
   // Load labeled images for face recognition
-  const loadLabeledImages = async () => {
+  const loadLabeledImages = useCallback(async () => {
     const labeledFaceDescriptors = await Promise.all(
       labels.map(async (label) => {
         try {
@@ -63,43 +63,10 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
     );
 
     return labeledFaceDescriptors.filter(Boolean);
-  };
-
-  // Initialize Face API models
-  useEffect(() => {
-    const loadModelsAndData = async () => {
-      try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-
-        const labeledFaceDescriptors = await loadLabeledImages();
-        if (labeledFaceDescriptors.length === 0) {
-          console.warn("No labeled images found");
-          setLoading(false);
-          return;
-        }
-
-        faceMatcherRef.current = new faceapi.FaceMatcher(
-          labeledFaceDescriptors,
-          0.45
-        );
-
-        setLoading(false);
-        startDetection();
-      } catch (error) {
-        console.error("Error initializing:", error);
-        setLoading(false);
-      }
-    };
-
-    if (labels.length > 0) {
-      loadModelsAndData();
-    }
-  }, [MODEL_URL, labels]);
+  }, [labels]);
 
   // Send email function
-  const sendEmail = () => {
+  const sendEmail = useCallback(() => {
     const emailData = {
       name: "System Alert",
       email: "linphonem@gmail.com",
@@ -121,13 +88,16 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
 
     // Start cooldown
     emailCooldownRef.current = true;
-    setTimeout(() => {
-      emailCooldownRef.current = false;
-    }, (EMAIL_COOLDOWN * 1000) / 30); // Convert frames to milliseconds
-  };
+    setTimeout(
+      () => {
+        emailCooldownRef.current = false;
+      },
+      (EMAIL_COOLDOWN * 1000) / 30
+    ); // Convert frames to milliseconds
+  }, [EMAIL_COOLDOWN]);
 
   // Start face detection
-  const startDetection = () => {
+  const startDetection = useCallback(() => {
     const video = webcamRef.current?.video;
     if (video && video.readyState === 4) {
       const videoWidth = video.videoWidth;
@@ -228,7 +198,40 @@ export default function FaceRecognition({ MODEL_URL, onNoFaceDetected }) {
     } else {
       setTimeout(startDetection, 100);
     }
-  };
+  }, [NO_FACE_THRESHOLD, STRANGER_THRESHOLD, onNoFaceDetected, sendEmail]);
+
+  // Initialize Face API models
+  useEffect(() => {
+    const loadModelsAndData = async () => {
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+        const labeledFaceDescriptors = await loadLabeledImages();
+        if (labeledFaceDescriptors.length === 0) {
+          console.warn("No labeled images found");
+          setLoading(false);
+          return;
+        }
+
+        faceMatcherRef.current = new faceapi.FaceMatcher(
+          labeledFaceDescriptors,
+          0.45
+        );
+
+        setLoading(false);
+        startDetection();
+      } catch (error) {
+        console.error("Error initializing:", error);
+        setLoading(false);
+      }
+    };
+
+    if (labels.length > 0) {
+      loadModelsAndData();
+    }
+  }, [MODEL_URL, labels, loadLabeledImages, startDetection]);
 
   // Loading state
   if (loading) {

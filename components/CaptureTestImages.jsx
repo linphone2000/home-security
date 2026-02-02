@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 
 export default function CaptureTestImages() {
@@ -14,38 +14,41 @@ export default function CaptureTestImages() {
   const NUM_IMAGES = 25;
 
   // Log debug messages
-  const logDebug = (message) => {
+  const logDebug = useCallback((message) => {
     console.log(`[DEBUG] ${message}`);
     setDebugLog((prev) =>
       [...prev, `[${new Date().toLocaleTimeString()}] ${message}`].slice(-5)
     );
-  };
+  }, []);
 
   // Fetch existing image count
-  const fetchExistingCount = async (name) => {
-    logDebug(`Fetching existing image count for ${name}`);
-    try {
-      const response = await fetch(
-        `/api/get-image-count?name=${encodeURIComponent(name)}`
-      );
-      logDebug(`Fetch response status: ${response.status}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "API response not OK");
+  const fetchExistingCount = useCallback(
+    async (name) => {
+      logDebug(`Fetching existing image count for ${name}`);
+      try {
+        const response = await fetch(
+          `/api/get-image-count?name=${encodeURIComponent(name)}`
+        );
+        logDebug(`Fetch response status: ${response.status}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "API response not OK");
+        }
+        const data = await response.json();
+        logDebug(`Existing images for ${name}: ${data.count}`);
+        setStartIndex(data.count);
+        return data.count;
+      } catch (error) {
+        logDebug(`Error fetching image count: ${error.message}`);
+        setStartIndex(0);
+        return 0;
       }
-      const data = await response.json();
-      logDebug(`Existing images for ${name}: ${data.count}`);
-      setStartIndex(data.count);
-      return data.count;
-    } catch (error) {
-      logDebug(`Error fetching image count: ${error.message}`);
-      setStartIndex(0);
-      return 0;
-    }
-  };
+    },
+    [logDebug]
+  );
 
   // Stop webcam
-  const stopWebcam = () => {
+  const stopWebcam = useCallback(() => {
     logDebug("Attempting to stop webcam");
     if (
       webcamRef.current &&
@@ -64,10 +67,10 @@ export default function CaptureTestImages() {
     } else {
       logDebug("No active webcam stream to stop");
     }
-  };
+  }, [logDebug]);
 
   // Capture image
-  const captureImage = () => {
+  const captureImage = useCallback(() => {
     logDebug("Entering captureImage function");
     if (!isWebcamActive) {
       logDebug("Cannot capture: isWebcamActive is false");
@@ -115,10 +118,10 @@ export default function CaptureTestImages() {
     } catch (error) {
       logDebug(`Capture error: ${error.message}`);
     }
-  };
+  }, [isWebcamActive, logDebug, name, startIndex]);
 
   // Save images to server
-  const saveImagesToServer = async () => {
+  const saveImagesToServer = useCallback(async () => {
     logDebug("Entering saveImagesToServer function");
     if (images.length === 0) {
       logDebug("No images to save");
@@ -165,28 +168,38 @@ export default function CaptureTestImages() {
       alert("Failed to save images to server: " + error.message);
       // Do not reset images on failure, allowing retry
     }
-  };
+  }, [images, logDebug, name, startIndex, stopWebcam]);
 
   // Handle key presses
-  const handleKeyPress = (event) => {
-    logDebug(`Key pressed: ${event.key}`);
-    if (!isWebcamActive) {
-      logDebug("Key press ignored: Webcam not active");
-      return;
-    }
+  const handleKeyPress = useCallback(
+    (event) => {
+      logDebug(`Key pressed: ${event.key}`);
+      if (!isWebcamActive) {
+        logDebug("Key press ignored: Webcam not active");
+        return;
+      }
 
-    if (event.key === " " && count < NUM_IMAGES) {
-      event.preventDefault();
-      logDebug("Spacebar pressed: Initiating capture");
-      captureImage();
-    } else if (event.key === "q") {
-      logDebug("Q pressed: Initiating save and quit");
-      saveImagesToServer();
-    }
-  };
+      if (event.key === " " && count < NUM_IMAGES) {
+        event.preventDefault();
+        logDebug("Spacebar pressed: Initiating capture");
+        captureImage();
+      } else if (event.key === "q") {
+        logDebug("Q pressed: Initiating save and quit");
+        saveImagesToServer();
+      }
+    },
+    [
+      NUM_IMAGES,
+      captureImage,
+      count,
+      isWebcamActive,
+      logDebug,
+      saveImagesToServer,
+    ]
+  );
 
   // Start capturing
-  const handleStartCapture = async () => {
+  const handleStartCapture = useCallback(async () => {
     logDebug("Entering handleStartCapture");
     if (!name.trim()) {
       logDebug("Start capture failed: No name provided");
@@ -198,7 +211,7 @@ export default function CaptureTestImages() {
     setStartIndex(existingCount);
     setIsWebcamActive(true);
     logDebug("Webcam activation triggered");
-  };
+  }, [fetchExistingCount, logDebug, name]);
 
   // Keypress listener
   useEffect(() => {
@@ -208,7 +221,7 @@ export default function CaptureTestImages() {
       logDebug("Removing keypress listener");
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [isWebcamActive, count, images]); // Include count and images to ensure latest state
+  }, [handleKeyPress, logDebug]);
 
   // Auto-save when reaching NUM_IMAGES
   useEffect(() => {
@@ -216,7 +229,7 @@ export default function CaptureTestImages() {
       logDebug(`Reached ${NUM_IMAGES} images, triggering auto-save`);
       saveImagesToServer();
     }
-  }, [count]);
+  }, [NUM_IMAGES, count, logDebug, saveImagesToServer]);
 
   // Cleanup on unmount only
   useEffect(() => {
@@ -224,7 +237,7 @@ export default function CaptureTestImages() {
       logDebug("Component unmounting");
       stopWebcam();
     };
-  }, []);
+  }, [logDebug, stopWebcam]);
 
   return (
     <div className="flex flex-col items-center space-y-6 p-4">

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   MagnifyingGlassIcon,
   PencilSquareIcon,
@@ -113,7 +114,7 @@ const TestDataDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-200">
-            Manage Face Recognition Test Data 
+            Manage Face Recognition Test Data
           </h1>
           <div className="relative">
             <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
@@ -163,13 +164,14 @@ const TestDataDashboard = () => {
                           )}
                         </td>
                         <td className="p-3">
-                          <img
+                          <Image
                             src={`/test_images/${name}`}
                             alt={name}
+                            width={48}
+                            height={48}
+                            sizes="48px"
                             className="w-12 h-12 object-cover rounded"
-                            onError={(e) =>
-                              (e.target.src = "/fallback-image.jpg")
-                            }
+                            unoptimized
                           />
                         </td>
                         <td className="p-3 flex space-x-4">

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -30,25 +30,31 @@ const SurveillanceCharts = () => {
   const fpsData = [20, 22, 23, 24, 25, 21]; // Static FPS values for 10s, 20s, ..., 60s
 
   // Bar Chart Data: Accuracy Comparison with distinct colors
-  const barData = {
-    labels: ["FaceAPI.js", "COCO-SSD"],
-    datasets: [
-      {
-        label: "Accuracy (%)",
-        data: [86, 95],
-        backgroundColor: ["rgba(34, 139, 34, 0.8)", "rgba(0, 120, 215, 0.8)"], // Green, Blue
-        borderColor: ["rgba(21, 87, 21, 1)", "rgba(0, 80, 180, 1)"],
-        borderWidth: 2,
-        borderRadius: 8,
-        hoverBackgroundColor: ["rgba(34, 139, 34, 1)", "rgba(0, 120, 215, 1)"],
-      },
-    ],
-  };
+  const barData = useMemo(
+    () => ({
+      labels: ["FaceAPI.js", "COCO-SSD"],
+      datasets: [
+        {
+          label: "Accuracy (%)",
+          data: [86, 95],
+          backgroundColor: ["rgba(34, 139, 34, 0.8)", "rgba(0, 120, 215, 0.8)"], // Green, Blue
+          borderColor: ["rgba(21, 87, 21, 1)", "rgba(0, 80, 180, 1)"],
+          borderWidth: 2,
+          borderRadius: 8,
+          hoverBackgroundColor: [
+            "rgba(34, 139, 34, 1)",
+            "rgba(0, 120, 215, 1)",
+          ],
+        },
+      ],
+    }),
+    []
+  );
 
   // Log the barData to debug
   useEffect(() => {
     console.log("Bar Chart Data:", barData);
-  }, []);
+  }, [barData]);
 
   // Bar Chart Options
   const barOptions = {
