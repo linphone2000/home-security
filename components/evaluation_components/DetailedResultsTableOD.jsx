@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 
 export default function DetailedResultsTable({
   imageDetails,
@@ -92,10 +93,14 @@ export default function DetailedResultsTable({
                   className="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
                   <td className="p-3">
-                    <img
+                    <Image
                       src={detail.image}
                       alt={detail.image.split("/").pop()}
+                      width={80}
+                      height={80}
+                      sizes="80px"
                       className="w-20 h-20 object-cover rounded-md shadow-sm"
+                      unoptimized
                     />
                   </td>
                   <td className="p-3 text-gray-700 dark:text-gray-300">

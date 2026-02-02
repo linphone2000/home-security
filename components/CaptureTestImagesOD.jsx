@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpTrayIcon,
@@ -19,15 +20,15 @@ export default function CaptureTestImagesOD() {
   const MAX_UPLOADS = 25;
 
   // Log debug messages
-  const logDebug = (message, details = {}) => {
+  const logDebug = useCallback((message, details = {}) => {
     console.log(`[DEBUG] ${message}`, details);
     setDebugLog((prev) =>
       [...prev, `[${new Date().toLocaleTimeString()}] ${message}`].slice(-5)
     );
-  };
+  }, []);
 
   // Fetch existing image counts for both classifications
-  const fetchExistingCounts = async () => {
+  const fetchExistingCounts = useCallback(async () => {
     if (hasFetchedCounts.current) {
       console.log("[DEBUG] Skipping fetch due to hasFetchedCounts");
       return;
@@ -88,12 +89,12 @@ export default function CaptureTestImagesOD() {
       setStartIndices({ Person: 0, NoPerson: 0 });
       hasFetchedCounts.current = true;
     }
-  };
+  }, [logDebug]);
 
   // Fetch counts on component mount
   useEffect(() => {
     fetchExistingCounts();
-  }, []);
+  }, [fetchExistingCounts]);
 
   // Handle file selection with .jpg validation
   const handleFileChange = (e) => {
@@ -372,10 +373,14 @@ export default function CaptureTestImagesOD() {
                   transition={{ duration: 0.3 }}
                   className="relative group"
                 >
-                  <img
+                  <Image
                     src={preview}
                     alt={`Preview ${index + 1}`}
+                    width={160}
+                    height={128}
+                    sizes="(max-width: 640px) 50vw, 160px"
                     className="w-full h-32 object-cover rounded-lg shadow-sm"
+                    unoptimized
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                     <p className="text-white text-xs font-medium">

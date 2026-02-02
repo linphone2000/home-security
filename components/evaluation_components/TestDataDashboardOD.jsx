@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 const TestDataDashboardOD = () => {
@@ -128,13 +129,14 @@ const TestDataDashboardOD = () => {
                       >
                         <td className="p-3">{name}</td>
                         <td className="p-3">
-                          <img
+                          <Image
                             src={`/test_set/${name}`}
                             alt={name}
+                            width={48}
+                            height={48}
+                            sizes="48px"
                             className="w-12 h-12 object-cover rounded"
-                            onError={(e) =>
-                              (e.target.src = "/fallback-image.jpg")
-                            }
+                            unoptimized
                           />
                         </td>
                         <td className="p-3">{hasPerson ? "Yes" : "No"}</td>

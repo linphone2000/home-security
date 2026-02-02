@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { drawOnCanvas } from "@/lib/drawObjects";
 import DetectionWrapper from "./DetectionWrapper";
@@ -55,17 +55,17 @@ export default function ObjectDetection({ onPersonDetected }) {
   }, [scriptsLoaded]);
 
   // Resize canvas to match the webcam
-  const resizeCanvas = () => {
+  const resizeCanvas = useCallback(() => {
     const canvas = canvasRefObj.current;
     const video = webcamRefObj.current?.video;
     if (canvas && video) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
     }
-  };
+  }, []);
 
   // Calculate FPS
-  const calculateFps = (now) => {
+  const calculateFps = useCallback((now) => {
     frameCount.current += 1;
     const elapsed = now - lastFrameTime.current;
 
@@ -75,52 +75,55 @@ export default function ObjectDetection({ onPersonDetected }) {
       frameCount.current = 0;
       lastFrameTime.current = now;
     }
-  };
+  }, []);
 
   // Run object detection and render
-  const runPredictions = async (timestamp) => {
-    if (
-      objectDetectionModel &&
-      webcamRefObj.current &&
-      webcamRefObj.current.video.readyState === 4
-    ) {
-      const startTime = performance.now(); // Start timing
-      const predictions = await objectDetectionModel.detect(
-        webcamRefObj.current.video
-      );
-      resizeCanvas();
-      const ctx = canvasRefObj.current.getContext("2d");
-      ctx.clearRect(
-        0,
-        0,
-        canvasRefObj.current.width,
-        canvasRefObj.current.height
-      );
+  const runPredictions = useCallback(
+    async (timestamp) => {
+      if (
+        objectDetectionModel &&
+        webcamRefObj.current &&
+        webcamRefObj.current.video.readyState === 4
+      ) {
+        const startTime = performance.now(); // Start timing
+        const predictions = await objectDetectionModel.detect(
+          webcamRefObj.current.video
+        );
+        resizeCanvas();
+        const ctx = canvasRefObj.current.getContext("2d");
+        ctx.clearRect(
+          0,
+          0,
+          canvasRefObj.current.width,
+          canvasRefObj.current.height
+        );
 
-      // Draw bounding boxes and confidence scores
-      drawOnCanvas(predictions, ctx);
+        // Draw bounding boxes and confidence scores
+        drawOnCanvas(predictions, ctx);
 
-      // Draw FPS on the canvas
-      ctx.font = "bold 20px Arial";
-      ctx.fillStyle = "white";
-      ctx.fillText(`FPS: ${fps.current}`, 10, 30);
+        // Draw FPS on the canvas
+        ctx.font = "bold 20px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(`FPS: ${fps.current}`, 10, 30);
 
-      // Calculate FPS
-      calculateFps(timestamp);
+        // Calculate FPS
+        calculateFps(timestamp);
 
-      const endTime = performance.now(); // End timing
-      const processTime = endTime - startTime; // Calculate processing time
-      console.log(`Processing Time: ${processTime.toFixed(2)}ms`); // Log processing time
+        const endTime = performance.now(); // End timing
+        const processTime = endTime - startTime; // Calculate processing time
+        console.log(`Processing Time: ${processTime.toFixed(2)}ms`); // Log processing time
 
-      const foundPerson = predictions.some(
-        (pred) => pred.label.toLowerCase() === "person"
-      );
-      if (foundPerson) {
-        onPersonDetected();
+        const foundPerson = predictions.some(
+          (pred) => pred.label.toLowerCase() === "person"
+        );
+        if (foundPerson) {
+          onPersonDetected();
+        }
       }
-    }
-    animationFrameId.current = requestAnimationFrame(runPredictions);
-  };
+      animationFrameId.current = requestAnimationFrame(runPredictions);
+    },
+    [calculateFps, objectDetectionModel, onPersonDetected, resizeCanvas]
+  );
 
   // Start detection loop
   useEffect(() => {
@@ -132,7 +135,7 @@ export default function ObjectDetection({ onPersonDetected }) {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [objectDetectionModel]);
+  }, [objectDetectionModel, runPredictions]);
 
   if (loading) {
     return <p className="text-black">Loading Object Detection...</p>;

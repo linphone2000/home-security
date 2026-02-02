@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   MagnifyingGlassIcon,
   PencilSquareIcon,
@@ -154,10 +155,14 @@ const LabelDashboard = () => {
                         )}
                       </td>
                       <td className="p-3">
-                        <img
+                        <Image
                           src={imageUrl}
                           alt={label}
+                          width={64}
+                          height={64}
+                          sizes="64px"
                           className="w-16 h-16 object-cover rounded"
+                          unoptimized
                         />
                       </td>
                       <td className="p-3 flex space-x-4">

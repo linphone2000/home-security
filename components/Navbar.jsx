@@ -47,6 +47,10 @@ const Navbar = () => {
     },
   ];
 
+  const visibleLinks = session?.user
+    ? navLinks
+    : navLinks.filter((link) => link.href === "/");
+
   // Animation variants for dropdown
   const dropdownVariants = {
     hidden: {
@@ -75,7 +79,7 @@ const Navbar = () => {
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="fixed top-0 w-full bg-white dark:bg-gray-900 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-700 z-50"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex justify-between items-center h-16">
             {/* Logo Section */}
             <motion.div
@@ -137,10 +141,10 @@ const Navbar = () => {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                className="absolute right-0 md:right-8 w-full md:w-64 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg md:shadow-md md:rounded-b-lg"
+                className="absolute top-full right-0 md:right-4 w-full md:w-64 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg md:shadow-md md:rounded-b-lg"
               >
                 <div className="px-4 pt-4 pb-3 space-y-2">
-                  {navLinks.map((link) => (
+                  {visibleLinks.map((link) => (
                     <motion.div
                       key={link.href}
                       variants={itemVariants}
