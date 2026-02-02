@@ -3,6 +3,7 @@
 A real-time, browser-based surveillance system built with Next.js, integrating object detection and face recognition to distinguish between family members and strangers, with email alerts for enhanced security.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -17,9 +18,11 @@ A real-time, browser-based surveillance system built with Next.js, integrating o
 - [Acknowledgements](#acknowledgements)
 
 ## Overview
+
 The Intelligent Home Surveillance System is a web application that leverages machine learning to monitor environments in real-time. It uses object detection to identify "person" and other objects, then switches to face recognition to determine if detected individuals are family members or strangers. If a stranger is detected for more than 5 seconds, the system sends an email alert to the house owner. Designed for lightweight, browser-based operation, it’s scalable and efficient for home security.
 
 ## Features
+
 - **Real-Time Processing**: Processes webcam feeds instantly in the browser.
 - **Object Detection**: Detects 80+ object categories (e.g., "person") using COCO-SSD.
 - **Face Recognition**: Identifies family vs. strangers with Faceapi.js (TinyFaceDetector, FaceLandmark68Net, FaceRecognitionNet).
@@ -30,6 +33,7 @@ The Intelligent Home Surveillance System is a web application that leverages mac
 - **Scalable**: Can expand to multi-camera setups with additional resources.
 
 ## Tech Stack
+
 - **Framework**: Next.js (React-based JavaScript framework)
 - **Object Detection**: ml5.js (COCO-SSD, TensorFlow.js-based)
 - **Face Recognition**: Faceapi.js (TensorFlow.js-based)
@@ -38,7 +42,9 @@ The Intelligent Home Surveillance System is a web application that leverages mac
 - **Environment**: Node.js
 
 ## Installation
+
 1. **Clone the Repository**:
+
    ```bash
    git clone https://github.com/linphone2000/home-security.git
    cd home-security
@@ -46,6 +52,7 @@ The Intelligent Home Surveillance System is a web application that leverages mac
 
 2. **Install Dependencies**:
    Ensure you have Node.js (v16 or later) installed. Then run:
+
    ```bash
    npm install --legacy-peer-deps
    ```
@@ -54,7 +61,12 @@ The Intelligent Home Surveillance System is a web application that leverages mac
    - Create an EmailJS account and set up a service, template, and public key.
    - Update the `FaceRecognition` component with your EmailJS credentials:
      ```javascript
-     emailjs.send("your_service_id", "your_template_id", emailData, "your_public_key")
+     emailjs.send(
+       "your_service_id",
+       "your_template_id",
+       emailData,
+       "your_public_key"
+     );
      ```
 
 4. **Prepare the Custom Dataset**:
@@ -67,6 +79,7 @@ The Intelligent Home Surveillance System is a web application that leverages mac
    Open `http://localhost:3000` in your browser to view the app.
 
 ## Usage
+
 1. **Start the App**:
    - Run the development server as described above.
    - Ensure your webcam is enabled; the app will request access.
@@ -82,8 +95,8 @@ The Intelligent Home Surveillance System is a web application that leverages mac
 4. **Switching Back**:
    - If no faces are detected for 200 frames, the system reverts to object detection, freeing up resources.
 
-
 ## Custom Dataset
+
 - **Purpose**: Stores reference images for family members to generate face embeddings.
 - **Structure**: Place one image per person in `public/labeled_images/<person_name>/ref.jpg`.
   - Example: `public/labeled_images/Alice/ref.jpg`
@@ -91,7 +104,9 @@ The Intelligent Home Surveillance System is a web application that leverages mac
 - **Scalability**: Add new family members by adding their image—no retraining needed.
 
 ## Datasets
+
 The system leverages pre-trained models with the following datasets:
+
 - **COCO-SSD**:
   - Dataset: COCO (Common Objects in Context)
   - Size: 330K+ images (~118K labeled for training)
@@ -118,6 +133,7 @@ The system leverages pre-trained models with the following datasets:
   - Purpose: Generates embeddings for known individuals without retraining
 
 ## Models
+
 - **Object Detection**:
   - **COCO-SSD**: Single Shot Detector (SSD) with MobileNetV1 backbone, ~5-6 MB, pre-trained on COCO dataset.
 - **Face Detection and Recognition**:
@@ -126,6 +142,7 @@ The system leverages pre-trained models with the following datasets:
   - **FaceRecognitionNet**: ResNet-34-like, 6.2 MB, generates 128D embeddings for recognition.
 
 ## Workflow
+
 1. **Object Detection**:
    - COCO-SSD scans webcam feed every 200ms for objects.
    - If "person" is detected for 5 frames, switches to face recognition mode.
@@ -140,12 +157,14 @@ The system leverages pre-trained models with the following datasets:
    - If no faces are detected for 200 frames, reverts to object detection, freeing resources.
 
 ## Future Improvements
+
 - Add support for multi-camera setups with stream selection.
 - Implement voice mode for audio alerts (if available in your region).
 - Enhance low-light performance with preprocessing (e.g., histogram equalization).
 - Integrate with a backend for storing detection logs and history.
 
 ## Acknowledgements
+
 - **ml5.js and Faceapi.js Teams**: For providing lightweight, pre-trained models for browser use.
 - **EmailJS**: For enabling seamless email notifications.
 - **Next.js Community**: For a robust framework and deployment support.
