@@ -3,22 +3,20 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Oval } from "react-loader-spinner";
+import { Loader2, Mail, Lock, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-
-const MIN_PASSWORD_LENGTH = 6;
+import { motion } from "framer-motion";
 
 export default function AuthPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [mode, setMode] = useState("signin"); // "signin" or "signup"
+  const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const canSubmit =
-    email.trim() !== "" && password.length >= MIN_PASSWORD_LENGTH && !isLoading;
+  const canSubmit = email.trim() !== "" && password.trim() !== "" && !isLoading;
 
   async function handleSignIn(e) {
     e.preventDefault();
@@ -87,106 +85,146 @@ export default function AuthPage() {
     }
   }
 
-  const inputClassName =
-    "w-full mb-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700";
+  const inputBase =
+    "w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-cyan-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-cyan-400 dark:focus:bg-slate-800 dark:focus:ring-cyan-400/20";
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col items-center justify-center text-center px-4 bg-gradient-to-r from-blue-500 via-cyan-500 to-green-500 dark:from-gray-800 dark:via-gray-900 dark:to-black">
-      <div className="w-full max-w-sm p-8 bg-white dark:bg-gray-900 shadow-md rounded-md">
-        <h1 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">
-          {mode === "signin" ? "Sign In" : "Sign Up"}
-        </h1>
+    <div className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center overflow-hidden px-4 py-12">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-cyan-50/30 to-teal-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
+      <div
+        className="absolute inset-0 opacity-40 dark:opacity-30"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.2) 1px, transparent 0)`,
+          backgroundSize: "40px 40px",
+        }}
+      />
+      <div className="absolute left-1/2 top-1/4 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/10" />
+      <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-teal-400/20 blur-3xl dark:bg-teal-500/10" />
 
-        <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp}>
-          <label htmlFor="signin-email" className="sr-only">
-            Email
-          </label>
-          <input
-            id="signin-email"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClassName}
-            autoComplete="email"
-            disabled={isLoading}
-          />
-          <label htmlFor="signin-password" className="sr-only">
-            Password
-          </label>
-          <input
-            id="signin-password"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={`${inputClassName} mb-6`}
-            autoComplete={
-              mode === "signin" ? "current-password" : "new-password"
-            }
-            disabled={isLoading}
-          />
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="relative w-full max-w-[420px]"
+      >
+        <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-8 shadow-2xl shadow-slate-300/30 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/40 dark:shadow-black/20">
+          {/* Header */}
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/25">
+              <ShieldCheck className="h-7 w-7 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              {mode === "signin" ? "Welcome back" : "Create an account"}
+            </h1>
+            <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+              {mode === "signin"
+                ? "Sign in to your Home Security account"
+                : "Get started with Home Security in seconds"}
+            </p>
+          </div>
 
-          <Button
-            type="submit"
-            className="w-full mb-4 h-10"
-            disabled={!canSubmit}
+          <form
+            onSubmit={mode === "signin" ? handleSignIn : handleSignUp}
+            className="space-y-4"
           >
-            {isLoading ? (
-              <span className="inline-flex items-center gap-2">
-                <Oval
-                  height={20}
-                  width={20}
-                  color="currentColor"
-                  ariaLabel="loading"
-                  wrapperStyle={{}}
-                  wrapperClass=""
-                  visible={true}
+            <div>
+              <label htmlFor="signin-email" className="sr-only">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
+                <input
+                  id="signin-email"
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`${inputBase} pl-11`}
+                  autoComplete="email"
+                  disabled={isLoading}
                 />
-                {mode === "signin" ? "Signing in…" : "Creating account…"}
-              </span>
-            ) : mode === "signin" ? (
-              "Sign In"
-            ) : (
-              "Create Account"
-            )}
-          </Button>
-        </form>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="signin-password" className="sr-only">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
+                <input
+                  id="signin-password"
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`${inputBase} pl-11`}
+                  autoComplete={
+                    mode === "signin" ? "current-password" : "new-password"
+                  }
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
 
-        <div className="text-gray-700 dark:text-gray-300">
-          {mode === "signin" ? (
-            <p>
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signup");
-                  setEmail("");
-                  setPassword("");
-                }}
-                className="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-transparent border-none cursor-pointer"
-              >
-                Sign Up
-              </button>
+            <Button
+              type="submit"
+              className="mt-6 h-12 w-full rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-base font-semibold text-white shadow-lg shadow-cyan-500/25 transition-all hover:from-cyan-600 hover:to-teal-600 hover:shadow-cyan-500/30 disabled:opacity-70"
+              disabled={!canSubmit}
+            >
+              {isLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2
+                    className="h-5 w-5 animate-spin shrink-0"
+                    aria-hidden
+                  />
+                  {mode === "signin" ? "Signing in…" : "Creating account…"}
+                </span>
+              ) : mode === "signin" ? (
+                "Sign In"
+              ) : (
+                "Create Account"
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 border-t border-slate-200 pt-6 dark:border-slate-700/50">
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+              {mode === "signin" ? (
+                <>
+                  Don&apos;t have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("signup");
+                      setEmail("");
+                      setPassword("");
+                    }}
+                    className="font-medium text-cyan-600 transition-colors hover:text-cyan-500 dark:text-cyan-400 dark:hover:text-cyan-300"
+                  >
+                    Sign up
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("signin");
+                      setEmail("");
+                      setPassword("");
+                    }}
+                    className="font-medium text-cyan-600 transition-colors hover:text-cyan-500 dark:text-cyan-400 dark:hover:text-cyan-300"
+                  >
+                    Sign in
+                  </button>
+                </>
+              )}
             </p>
-          ) : (
-            <p>
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signin");
-                  setEmail("");
-                  setPassword("");
-                }}
-                className="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-transparent border-none cursor-pointer"
-              >
-                Sign In
-              </button>
-            </p>
-          )}
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
